@@ -98,3 +98,14 @@ Begründung: Next.js bietet SSR, API-Routes und TypeScript-Unterstützung out of
 - App Router erlaubt klare Trennung von Server- und Client-Komponenten.
 - SQLite braucht keine separate Datenbank-Installation.
 - Tailwind + shadcn/ui minimiert CSS-Arbeit bei gleichzeitig professionellem Look.
+
+## 2026-07-14 - Widersprüche aus SPEC Modell.md übernommen
+
+**Kontext:** Die ursprüngliche `SPEC Modell.md` aus der Discovery enthielt zwei Widersprüche, die in `docs/spec.md` als offen markiert sind.
+
+### Entscheidung
+Die Widersprüche bleiben bestehen und werden bei Implementierung der betroffenen Features (SMA-017, SMA-026) durch Rückfrage an die Inhaberin geklärt. Keine stillschweigende Festlegung.
+
+### Betroffene Features
+- SMA-017: No-Show-Sperre Premium (automatisch vs. nur Info)
+- SMA-026: Geburtstagsprozess (automatische Nachricht vs. Admin-Erinnerung)

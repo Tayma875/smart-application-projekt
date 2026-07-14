@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  url      = "file:./dev.db"
+  provider = "sqlite"
+}
+
+model Account {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  rolle     String    // Admin, Rezeption, Trainer, Mitglied
+  mitglied  Mitglied?
+  trainer   Trainer?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Mitglied {
+  id             String             @id @default(cuid())
+  accountId      String?            @unique
+  account        Account?           @relation(fields: [accountId], references: [id])
+  tarifId        String
+  tarif          Tarif              @relation(fields: [tarifId], references: [id])
+  vorname        String
+  nachname       String
+  email          String             @unique
+  telefon        String?
+  geburtsdatum   DateTime?
+  status         String             // aktiv, pausiert, gekuendigt, zahlung_ausstehend
+  zahlungsstatus String             @default("ok") // ok, ausstehend, ueberfaellig
+  startdatum     DateTime           @default(now())
+  fotoUrl        String?
+  noShowZaehler  Int                @default(0)
+  gesperrtBis    DateTime?
+  pausiertBis    DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  histories       MitgliedsHistorie[]
+  buchungen       Buchung[]
+  wartelisten     WartelistenEintrag[]
+  advancedFreigaben AdvancedFreigabe[]
+}
+
+model MitgliedsHistorie {
+  id        String   @id @default(cuid())
+  mitgliedId String
+  mitglied  Mitglied @relation(fields: [mitgliedId], references: [id])
+  tarifId   String
+  startdatum DateTime
+  enddatum  DateTime?
+  bemerkung String?
+  createdAt DateTime @default(now())
+}
+
+model Tarif {
+  id                String    @id @default(cuid())
+  name              String    @unique // Basic, Plus, Premium
+  monatspreis       Float
+  laufzeit          String    // jahresvertrag, monatlich_kuendbar
+  buchungslimit     Int?      // null = unbegrenzt
+  onlineBerechtigung String   // kein, videos_livestreams, alles
+  stornoRegel       String?   // spezifische Stornokonditionen
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  mitglieder Mitglied[]
+}
+
+model Kurs {
+  id              String   @id @default(cuid())
+  name            String
+  beschreibung    String?
+  level           String   // anfaenger, mittel, fortgeschritten
+  kategorie       String   // z.B. Yoga, HIIT, Spinning, Functional Training
+  dauer           Int      // in Minuten
+  maxTeilnehmer   Int
+  voraussetzungId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  termine     Kurstermin[]
+  trainer     TrainerKurs[]
+  onlineContent OnlineContent[]
+}
+
+model Kurstermin {
+  id        String   @id @default(cuid())
+  kursId    String
+  kurs      Kurs     @relation(fields: [kursId], references: [id])
+  raumId    String
+  raum      Raum     @relation(fields: [raumId], references: [id])
+  trainerId String
+  trainer   Trainer  @relation(fields: [trainerId], references: [id])
+  datum     DateTime
+  uhrzeit   String   // z.B. "09:00"
+  status    String   @default("findet_statt") // findet_statt, abgesagt, vertretung, stattgefunden
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  buchungen   Buchung[]
+  wartelisten WartelistenEintrag[]
+}
+
+model Trainer {
+  id               String   @id @default(cuid())
+  accountId        String?  @unique
+  account          Account? @relation(fields: [accountId], references: [id])
+  name             String
+  spezialisierung  String?
+  beschaeftigungsart String // fest_angestellt, honorarbasis
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  kurse       TrainerKurs[]
+  termiine    Kurstermin[]
+}
+
+model TrainerKurs {
+  trainerId String
+  trainer   Trainer @relation(fields: [trainerId], references: [id])
+  kursId    String
+  kurs      Kurs    @relation(fields: [kursId], references: [id])
+
+  @@id([trainerId, kursId])
+}
+
+model Raum {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  kapazitaet Int
+  raumtyp   String?  // z.B. Kursraum, Spinning-Raum
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  termiine Kurstermin[]
+}
+
+model Buchung {
+  id              String   @id @default(cuid())
+  mitgliedId      String
+  mitglied        Mitglied @relation(fields: [mitgliedId], references: [id])
+  terminId        String
+  termin          Kurstermin @relation(fields: [terminId], references: [id])
+  buchungszeitpunkt DateTime @default(now())
+  teilnahmeStatus String   @default("angemeldet") // angemeldet, teilgenommen, no_show, storniert
+  stornozeitpunkt DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([mitgliedId, terminId])
+}
+
+model WartelistenEintrag {
+  id        String   @id @default(cuid())
+  mitgliedId String
+  mitglied  Mitglied @relation(fields: [mitgliedId], references: [id])
+  terminId  String
+  termin    Kurstermin @relation(fields: [terminId], references: [id])
+  reihenfolge Int
+  eintragungszeitpunkt DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@unique([mitgliedId, terminId])
+}
+
+model OnlineContent {
+  id              String  @id @default(cuid())
+  titel           String
+  beschreibung    String?
+  kategorie       String  // live_stream, on_demand_video
+  videoUrl        String?
+  kursId          String?
+  kurs            Kurs?   @relation(fields: [kursId], references: [id])
+  dauer           Int?    // in Minuten
+  tarifVoraussetzung String // basic, plus, premium
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AdvancedFreigabe {
+  id          String   @id @default(cuid())
+  mitgliedId  String
+  mitglied    Mitglied @relation(fields: [mitgliedId], references: [id])
+  kategorie   String   // z.B. Yoga, HIIT
+  erteiltVon  String   // Admin-ID
+  createdAt   DateTime @default(now())
+
+  @@unique([mitgliedId, kategorie])
+}
+
+model Benachrichtigung {
+  id        String   @id @default(cuid())
+  typ       String   // warnung, erinnerung, info
+  titel     String
+  inhalt    String?
+  empfaengerRolle String? // admin, trainer, mitglied, rezeption
+  mitgliedId String?
+  terminId  String?
+  gelesen   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

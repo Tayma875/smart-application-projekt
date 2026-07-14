@@ -39,3 +39,10 @@ Dieses Repo folgt einer Solo-Variante von Modus Operandi:
 - No-Show-Zaehler meint aufeinanderfolgende unentschuldigte Fehlzeiten, nicht zwingend Gesamtanzahl.
 - Zahlung ausstehend erzeugt Warnung, aber keine automatische Sperre.
 - Trainer auf Honorarbasis duerfen nur tatsaechlich stattgefundene Termine in der Abrechnung sehen.
+
+## Agenten-Erweiterung
+
+Das Verzeichnis `_agent/` enthält einen vollständigen KI-Agenten für die
+automatisierte Umsetzung dieses Projekts. Wenn Codex aufgefordert wird,
+ein SMA-Feature umzusetzen, zuerst `_agent/SKILL.md` lesen. Die Skripte
+in `_agent/scripts/` helfen bei Status-Verfolgung und Datenbank-Operationen.
