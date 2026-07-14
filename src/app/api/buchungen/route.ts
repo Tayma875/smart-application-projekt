@@ -29,6 +29,16 @@ export async function POST(req: Request) {
   })
   if (!termin) return NextResponse.json({ error: "Termin nicht gefunden" }, { status: 404 })
 
+  // SMA-029: Fortgeschrittenenkurse nur mit Freigabe
+  if (termin.kurs.level === "fortgeschritten") {
+    const freigabe = await prisma.advancedFreigabe.findUnique({
+      where: { mitgliedId_kategorie: { mitgliedId, kategorie: termin.kurs.kategorie } },
+    })
+    if (!freigabe) {
+      return NextResponse.json({ error: "Fortgeschrittenenkurse benötigen eine Admin-Freigabe" }, { status: 403 })
+    }
+  }
+
   const terminStart = new Date(`${termin.datum.toISOString().split("T")[0]}T${termin.uhrzeit}`)
   const zweiStundenVorher = new Date(terminStart.getTime() - 2 * 60 * 60 * 1000)
   if (new Date() > zweiStundenVorher) {

@@ -139,6 +139,9 @@ export default async function Home() {
               <DashboardCard title="Kurstermine" href="/admin/kurstermine" desc="Planen" />
               <DashboardCard title="Trainer" href="/admin/trainer" desc="Verwalten" />
               <DashboardCard title="Räume" href="/admin/raeume" desc="Verwalten" />
+              <DashboardCard title="Online-Content" href="/admin/online-content" desc="Verwalten" />
+              <DashboardCard title="Advanced-Freigabe" href="/admin/advanced-freigabe" desc="Fortgeschrittenenkurse" />
+              <DashboardCard title="Abrechnung" href="/admin/abrechnung" desc="Honorartrainer" />
             <>
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="font-semibold text-gray-800">Vertrags-Monitoring</h3>

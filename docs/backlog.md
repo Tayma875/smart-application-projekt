@@ -44,11 +44,11 @@ Dieses Dokument ist kein zweites Anforderungsdokument. Anforderungen stehen auss
 | SMA-024 | Auslastungswarnung bei 80 Prozent | 3 | done | spec.md | Automatische Admin-Warnung bei Buchung + Dashboard-Banner |
 | SMA-025 | Vertrags-Monitoring | 3 | done | spec.md | API prüft auslaufende/abgelaufene Verträge + Dashboard-Button |
 | SMA-026 | Geburtstagsprozess | 3 | hypo | spec.md | Entscheidung offen: automatisch schreiben oder Admin erinnern |
-| SMA-027 | Online-Content-Verwaltung | 4 | hypo | spec.md | Live-Streams, On-Demand-Videos, Kursbezug |
-| SMA-028 | Tarifbasierter Online-Zugang | 4 | hypo | spec.md | Basic/Plus/Premium-Regel final klaeren |
-| SMA-029 | Advanced-Freigabe | 4 | hypo | spec.md | Manuelle Freigabe pro Mitglied und Kategorie |
-| SMA-030 | Advanced-Hinweis aus Teilnahmehistorie | 4 | hypo | spec.md | Hinweis auf besuchte Mittel-Kurse |
-| SMA-031 | Honorartrainer-Abrechnung | 4 | hypo | spec.md | Zeitraum, Datum, Kursname, Dauer, nur stattgefunden |
+| SMA-027 | Online-Content-Verwaltung | 4 | done | spec.md | CRUD + UI (Admin), Dashboard-Link |
+| SMA-028 | Tarifbasierter Online-Zugang | 4 | done | spec.md | tarifVoraussetzung-Feld + Mitglieder-Filter (Basic/Plus/Premium) |
+| SMA-029 | Advanced-Freigabe | 4 | done | spec.md | Admin-Freigabe pro Mitglied + Kategorie, Buchungsprüfung |
+| SMA-030 | Advanced-Hinweis aus Teilnahmehistorie | 4 | done | spec.md | Admin sieht besuchte Mittel-Kurse bei Freigabe |
+| SMA-031 | Honorartrainer-Abrechnung | 4 | done | spec.md | API + UI mit Zeitraumfilter, nur stattgefundene Termine |
 
 ## Workflow
 - Neues Feature: naechste freie `SMA-NNN` vergeben.
