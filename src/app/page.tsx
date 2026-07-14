@@ -2,6 +2,8 @@ import { auth, signOut } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { ErinnerungenButton } from "@/components/ErinnerungenButton"
+import { VertragsMonitoringButton } from "@/components/VertragsMonitoringButton"
 
 export default async function Home() {
   const session = await auth()
@@ -14,6 +16,7 @@ export default async function Home() {
   let noShowWarnungen = 0
   let gesperrtCount = 0
   let trainerAusfallCount = 0
+  let auslastungWarnungen = 0
   let warnungen: { titel: string; inhalt: string | null }[] = []
 
   if (rolle === "Admin") {
@@ -22,6 +25,9 @@ export default async function Home() {
     gesperrtCount = await prisma.mitglied.count({ where: { gesperrtBis: { gte: new Date() } } })
     trainerAusfallCount = await prisma.kurstermin.count({
       where: { status: "vertretung", datum: { gte: new Date() } },
+    })
+    auslastungWarnungen = await prisma.benachrichtigung.count({
+      where: { typ: "warnung", titel: { contains: "80%" }, gelesen: false },
     })
     warnungen = await prisma.benachrichtigung.findMany({
       where: { gelesen: false, empfaengerRolle: "Admin" },
@@ -84,6 +90,17 @@ export default async function Home() {
                 </Link>
               </div>
             )}
+            {auslastungWarnungen > 0 && (
+              <div className="bg-purple-50 border border-purple-200 rounded-xl px-5 py-3 flex items-center gap-3">
+                <span className="text-xl">📊</span>
+                <p className="text-sm text-purple-800">
+                  <strong>{auslastungWarnungen} Termine</strong> mit 80%+ Auslastung — Zusatztermine prüfen.
+                </p>
+                <Link href="/admin/kurstermine" className="ml-auto text-sm text-purple-700 hover:underline font-medium">
+                  Anzeigen →
+                </Link>
+              </div>
+            )}
             {gesperrtCount > 0 && (
               <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-3 flex items-center gap-3">
                 <span className="text-xl">🔒</span>
@@ -104,6 +121,15 @@ export default async function Home() {
           </div>
         )}
 
+        {/* SMA-023: Erinnerungen manuell auslösen */}
+        {rolle === "Admin" && (
+          <div className="mb-6 p-4 bg-white border border-gray-200 rounded-xl">
+            <h3 className="font-semibold text-gray-800 mb-2">Kurserinnerungen</h3>
+            <p className="text-xs text-gray-500 mb-3">Sendet 24h- und 1h-Erinnerungen an alle gebuchten Mitglieder.</p>
+            <ErinnerungenButton />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rolle === "Admin" && (
             <>
@@ -113,6 +139,13 @@ export default async function Home() {
               <DashboardCard title="Kurstermine" href="/admin/kurstermine" desc="Planen" />
               <DashboardCard title="Trainer" href="/admin/trainer" desc="Verwalten" />
               <DashboardCard title="Räume" href="/admin/raeume" desc="Verwalten" />
+            <>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-800">Vertrags-Monitoring</h3>
+                <p className="text-xs text-gray-500 mt-1 mb-3">Auslaufende/abgelaufene Mitgliedschaften prüfen</p>
+                <VertragsMonitoringButton />
+              </div>
+            </>
             </>
           )}
           {rolle === "Rezeption" && (

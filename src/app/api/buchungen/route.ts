@@ -68,6 +68,27 @@ export async function POST(req: Request) {
     data: { mitgliedId, terminId, buchungszeitpunkt: new Date(), teilnahmeStatus: "angemeldet" },
     include: { termin: { include: { kurs: true } } },
   })
+
+  // SMA-024: Auslastungswarnung bei 80%
+  const aktuelleBuchungen = termin._count.buchungen + 1
+  const auslastung = aktuelleBuchungen / kapazitaet
+  if (auslastung >= 0.8) {
+    const existiert = await prisma.benachrichtigung.findFirst({
+      where: { terminId, typ: "warnung", titel: { contains: "80%" } },
+    })
+    if (!existiert) {
+      await prisma.benachrichtigung.create({
+        data: {
+          typ: "warnung",
+          titel: "Auslastungswarnung (80%)",
+          inhalt: `${termin.kurs.name} am ${new Date(termin.datum).toLocaleDateString("de-DE")} um ${termin.uhrzeit}: ${aktuelleBuchungen}/${kapazitaet} Plätze belegt (${Math.round(auslastung * 100)}%)`,
+          empfaengerRolle: "Admin",
+          terminId,
+        },
+      })
+    }
+  }
+
   return NextResponse.json(buchung, { status: 201 })
 }
 

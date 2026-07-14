@@ -40,9 +40,9 @@ Dieses Dokument ist kein zweites Anforderungsdokument. Anforderungen stehen auss
 | SMA-020 | Zahlung-ausstehend-Warnung | 2 | done | spec.md | Dashboard-Banner + Benachrichtigung bei Statuswechsel |
 | SMA-021 | Trainerausfall-Warnung | 3 | done | spec.md | Warnung bei Status vertretung + Dashboard-Banner + Ersatztrainer via UI |
 | SMA-022 | Kursabsage-Workflow | 3 | done | spec.md | Buchungen gebührenfrei storniert, Benachrichtigung an Mitglieder + Warteliste + Admin |
-| SMA-023 | Kurserinnerungen | 3 | hypo | spec.md | 24h und 1h vor Kursbeginn |
-| SMA-024 | Auslastungswarnung bei 80 Prozent | 3 | hypo | spec.md | Admin kann Zusatztermine pruefen |
-| SMA-025 | Vertrags-Monitoring | 3 | hypo | spec.md | Auslaufende/abgelaufene Mitgliedschaften |
+| SMA-023 | Kurserinnerungen | 3 | done | spec.md | API + Dashboard-Button für 24h- und 1h-Erinnerungen |
+| SMA-024 | Auslastungswarnung bei 80 Prozent | 3 | done | spec.md | Automatische Admin-Warnung bei Buchung + Dashboard-Banner |
+| SMA-025 | Vertrags-Monitoring | 3 | done | spec.md | API prüft auslaufende/abgelaufene Verträge + Dashboard-Button |
 | SMA-026 | Geburtstagsprozess | 3 | hypo | spec.md | Entscheidung offen: automatisch schreiben oder Admin erinnern |
 | SMA-027 | Online-Content-Verwaltung | 4 | hypo | spec.md | Live-Streams, On-Demand-Videos, Kursbezug |
 | SMA-028 | Tarifbasierter Online-Zugang | 4 | hypo | spec.md | Basic/Plus/Premium-Regel final klaeren |
