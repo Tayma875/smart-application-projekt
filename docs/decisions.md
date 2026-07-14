@@ -1,7 +1,7 @@
 # Decisions - Smart Application Projekt
 
 _Chronologisches Log aller Produkt- und Architekturentscheidungen._
-_Stand: 2026-06-26_
+_Stand: 2026-07-14_
 
 ## 2026-06-26 - Modus-Operandi-Struktur fuer Solo-Projekt
 
@@ -27,32 +27,23 @@ Das Repo nutzt `AGENTS.md` als primaeres Agenten-Briefing und behaelt `CLAUDE.md
 - `docs/spec.md` bleibt die einzige Quelle fuer Anforderungen.
 - Backlog-IDs koennen gepflegt werden, sobald Features umgesetzt oder verworfen werden.
 
-## Offene Entscheidungen
-
-### Wartelisten-Bestaetigungsfrist
-**Betroffene Features:** `SMA-014`
-
-Offen: Gilt fuer Nachruecker eine Frist von 30 oder 60 Minuten?
+## Offene Entscheidungen (aus SPEC Modell.md Widersprüche)
 
 ### Premium und No-Show-Sperre
 **Betroffene Features:** `SMA-011`, `SMA-017`
 
-Offen: Sind Premium-Mitglieder nur von Spaetstorno-Gebuehren ausgenommen oder auch von automatischen No-Show-Sperren?
+Die Spec widerspricht sich: Einerseits automatische Sperre bei 3 No-Shows für alle,
+andererseits für Premium-Mitglieder keine automatische Sperre, sondern nur Info an Admin.
 
-### Basic und Online-Zugang
-**Betroffene Features:** `SMA-028`
-
-Offen: Erhaelt Basic gar keinen Online-Zugang oder einen eingeschraenkten Zugriff?
+Offen: Sollen Premium-Mitglieder von der automatischen No-Show-Sperre ausgenommen sein?
 
 ### Geburtstagskommunikation
 **Betroffene Features:** `SMA-026`
 
-Offen: Soll das System automatisch an Mitglieder schreiben oder nur die Inhaberin erinnern?
+Die Spec widerspricht sich: Einerseits automatische Geburtstagsnachricht an Mitglieder,
+andererseits nur Admin-Erinnerung, damit Lisa selbst schreibt.
 
-### Tech-Stack
-**Betroffene Features:** alle
-
-Offen: Framework, Datenbank, Auth, Hosting und Benachrichtigungsanbieter sind noch nicht entschieden.
+Offen: Automatische Nachricht an Mitglied oder Admin-Erinnerung?
 
 <!-- Vorlage fuer neue Entscheidungen:
 
