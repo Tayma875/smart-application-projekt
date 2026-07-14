@@ -1,6 +1,6 @@
 # Backlog - Smart Application Projekt
 
-_Stand: 2026-06-26_
+_Stand: 2026-07-14_
 
 Stabile Feature-IDs. Nicht umnummerieren. Geloeschte oder verworfene IDs werden nicht wiederverwendet.
 
@@ -18,28 +18,28 @@ Dieses Dokument ist kein zweites Anforderungsdokument. Anforderungen stehen auss
 
 | ID | Name | Phase | Status | Quelle | Notiz |
 |----|------|-------|--------|--------|-------|
-| SMA-001 | Rollen- und Rechteverwaltung | 1 | hypo | spec.md | Admin, Rezeption, Trainer, Mitglied |
-| SMA-002 | Mitgliederverwaltung | 1 | hypo | spec.md | Stammdaten, Status, Foto, Zahlungsstatus |
-| SMA-003 | Tarifverwaltung | 1 | hypo | spec.md | Basic, Plus, Premium, Preise, Laufzeit, Limits |
-| SMA-004 | Mitglieds- und Tarifhistorie | 1 | hypo | spec.md | Historie mit Start/Ende/Bemerkung |
-| SMA-005 | Kursarten verwalten | 1 | hypo | spec.md | Name, Kategorie, Level, Dauer, Voraussetzung |
-| SMA-006 | Kurstermine planen | 1 | hypo | spec.md | Datum, Uhrzeit, Raum, Trainer, Status |
-| SMA-007 | Raeume und Kapazitaeten verwalten | 1 | hypo | spec.md | Raumkapazitaet plus Kurslimit |
-| SMA-008 | Trainerprofile und Qualifikationen | 1 | hypo | spec.md | Spezialisierung, Beschaeftigungsart, Kursqualifikation |
-| SMA-009 | Mitglieder-Account | 1 | hypo | spec.md | 1:1 Login-Account fuer Mitglieder |
-| SMA-010 | Kursbuchung | 2 | hypo | spec.md | Buchung bis 2 Stunden vor Beginn |
-| SMA-011 | Storno mit Gebuehrenlogik | 2 | hypo | spec.md | 50 Prozent bei Spaetstorno, Premium-Ausnahme offen |
-| SMA-012 | Monatliche Buchungslimits | 2 | hypo | spec.md | Basic begrenzt, Premium unbegrenzt |
-| SMA-013 | Warteliste | 2 | hypo | spec.md | Maximal 5 Personen pro Termin |
-| SMA-014 | Wartelisten-Nachruecken | 2 | hypo | spec.md | Bestaetigungsfrist offen: 30 vs. 60 Minuten |
-| SMA-015 | Anwesenheit fuer Trainer | 2 | hypo | spec.md | Trainer haken Teilnehmer ab |
-| SMA-016 | No-Show-Warnung nach zwei Fehlzeiten | 2 | hypo | spec.md | Interne Admin-Warnung |
-| SMA-017 | No-Show-Sperre nach drei Fehlzeiten | 2 | hypo | spec.md | Zwei Wochen Live-Buchungssperre; Premium-Ausnahme offen |
-| SMA-018 | Manuelle Entsperrung | 2 | hypo | spec.md | Admin kann Sperre begruendet aufheben |
-| SMA-019 | Mitgliedschaft pausieren | 2 | hypo | spec.md | Maximal 3 Monate pro Jahr |
-| SMA-020 | Zahlung-ausstehend-Warnung | 2 | hypo | spec.md | Warnung ohne automatische Sperre |
-| SMA-021 | Trainerausfall-Warnung | 3 | hypo | spec.md | Nur Admin sichtbar, Ersatztrainer moeglich |
-| SMA-022 | Kursabsage-Workflow | 3 | hypo | spec.md | Admin markiert abgesagt, danach Storno und Benachrichtigung |
+| SMA-001 | Rollen- und Rechteverwaltung | 1 | done | spec.md | Auth.js + Login + Middleware + Dashboard; Admin, Rezeption, Trainer, Mitglied |
+| SMA-002 | Mitgliederverwaltung | 1 | done | spec.md | CRUD + UI (Admin + Rezeption), Stammdaten, Status, Foto, Zahlungsstatus |
+| SMA-003 | Tarifverwaltung | 1 | done | spec.md | CRUD + UI, Admin only; Basic, Plus, Premium, Preise, Laufzeit, Limits |
+| SMA-004 | Mitglieds- und Tarifhistorie | 1 | done | spec.md | Automatische Historie bei Änderungen mit Start/Ende/Bemerkung |
+| SMA-005 | Kursarten verwalten | 1 | done | spec.md | CRUD + UI, Admin only; Name, Kategorie, Level, Dauer, Voraussetzung |
+| SMA-006 | Kurstermine planen | 1 | done | spec.md | CRUD + UI, Admin only; Datum, Uhrzeit, Raum, Trainer, Status |
+| SMA-007 | Räume und Kapazitäten verwalten | 1 | done | spec.md | CRUD + UI, Admin only; Raumkapazität plus Kurslimit |
+| SMA-008 | Trainerprofile und Qualifikationen | 1 | done | spec.md | CRUD + UI, Admin only; Spezialisierung, Beschäftigungsart, Kursqualifikation |
+| SMA-009 | Mitglieder-Account | 1 | done | spec.md | 1:1 Login-Account für Mitglieder mit Buchungsseite und Übersicht |
+| SMA-010 | Kursbuchung | 2 | done | spec.md | Buchung, 2h-Regel, Kapazität, Rezeptions-UI |
+| SMA-011 | Storno mit Gebührenlogik | 2 | done | spec.md | 50% bei Storno <2h, Premium-Ausnahme |
+| SMA-012 | Monatliche Buchungslimits | 2 | done | spec.md | Basic-Limit geprüft, Premium unbegrenzt |
+| SMA-013 | Warteliste | 2 | done | spec.md | Max. 5 Personen, Wartelisten-API + UI |
+| SMA-014 | Wartelisten-Nachrücken | 2 | done | spec.md | Automatisch bei Stornierung, keine Frist |
+| SMA-015 | Anwesenheit für Trainer | 2 | done | spec.md | Trainer haken Teilnehmer ab |
+| SMA-016 | No-Show-Warnung nach 2 Fehlzeiten | 2 | done | spec.md | Interne Admin-Warnung bei 2 No-Shows |
+| SMA-017 | No-Show-Sperre nach 3 Fehlzeiten | 2 | done | spec.md | 2 Wochen Sperre nach 3 No-Shows |
+| SMA-018 | Manuelle Entsperrung | 2 | done | spec.md | Admin-Entsperrbutton im UI |
+| SMA-019 | Mitgliedschaft pausieren | 2 | done | spec.md | Max. 3 Monate pro Jahr, Prüfung |
+| SMA-020 | Zahlung-ausstehend-Warnung | 2 | done | spec.md | Dashboard-Banner + Benachrichtigung bei Statuswechsel |
+| SMA-021 | Trainerausfall-Warnung | 3 | done | spec.md | Warnung bei Status vertretung + Dashboard-Banner + Ersatztrainer via UI |
+| SMA-022 | Kursabsage-Workflow | 3 | done | spec.md | Buchungen gebührenfrei storniert, Benachrichtigung an Mitglieder + Warteliste + Admin |
 | SMA-023 | Kurserinnerungen | 3 | hypo | spec.md | 24h und 1h vor Kursbeginn |
 | SMA-024 | Auslastungswarnung bei 80 Prozent | 3 | hypo | spec.md | Admin kann Zusatztermine pruefen |
 | SMA-025 | Vertrags-Monitoring | 3 | hypo | spec.md | Auslaufende/abgelaufene Mitgliedschaften |

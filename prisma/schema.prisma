@@ -148,6 +148,7 @@ model Buchung {
   buchungszeitpunkt DateTime @default(now())
   teilnahmeStatus String   @default("angemeldet") // angemeldet, teilgenommen, no_show, storniert
   stornozeitpunkt DateTime?
+  gebuehr        Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
