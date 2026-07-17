@@ -35,7 +35,7 @@ Das Repo nutzt `AGENTS.md` als primaeres Agenten-Briefing und behaelt `CLAUDE.md
 Die Spec widerspricht sich: Einerseits automatische Sperre bei 3 No-Shows für alle,
 andererseits für Premium-Mitglieder keine automatische Sperre, sondern nur Info an Admin.
 
-Offen: Sollen Premium-Mitglieder von der automatischen No-Show-Sperre ausgenommen sein?
+Geloest am 2026-07-17: Premium ist von der automatischen Sperre ausgenommen; Admin erhaelt nur eine Benachrichtigung.
 
 ### Geburtstagskommunikation
 **Betroffene Features:** `SMA-026`
@@ -43,7 +43,7 @@ Offen: Sollen Premium-Mitglieder von der automatischen No-Show-Sperre ausgenomme
 Die Spec widerspricht sich: Einerseits automatische Geburtstagsnachricht an Mitglieder,
 andererseits nur Admin-Erinnerung, damit Lisa selbst schreibt.
 
-Offen: Automatische Nachricht an Mitglied oder Admin-Erinnerung?
+Geloest am 2026-07-17: Keine automatische Nachricht, nur Admin-Erinnerung fuer persoenliche Kontaktaufnahme.
 
 <!-- Vorlage fuer neue Entscheidungen:
 
@@ -100,3 +100,26 @@ Die Widersprüche bleiben bestehen und werden bei Implementierung der betroffene
 ### Betroffene Features
 - SMA-017: No-Show-Sperre Premium (automatisch vs. nur Info)
 - SMA-026: Geburtstagsprozess (automatische Nachricht vs. Admin-Erinnerung)
+
+## 2026-07-17 - Widersprüche aufgelöst: No-Show-Sperre Premium & Geburtstagskommunikation
+
+**Kontext:** Die Spec enthielt zwei Widersprüche (Premium-No-Show-Sperre, Geburtstagsnachricht), die bis zur Klärung durch die Inhaberin offen waren. Lisa hat nun entschieden.
+
+### Entscheidung No-Show-Sperre für Premium
+Die automatische Sperre nach drei No-Shows gilt nur für Basic- und Plus-Mitglieder.
+Premium-Mitglieder werden nicht automatisch gesperrt; Lisa erhält stattdessen eine
+Benachrichtigung und entscheidet individuell.
+
+### Entscheidung Geburtstagskommunikation
+Das System verschickt keine automatische Geburtstagsnachricht. Es erinnert Lisa,
+dass ein Mitglied Geburtstag hat. Lisa schreibt persönlich, um den persönlichen
+Kontakt zu stärken und sich von großen Ketten abzuheben.
+
+### Alternativen verworfen
+- No-Show-Sperre für alle Tarife: Würde Premium-Vorteile untergraben.
+- Automatische Geburtstagsnachricht: Zu unpersönlich für das Studio-Konzept.
+
+### Konsequenzen
+- SMA-017: Implementierung muss Premium von automatischer Sperre ausnehmen.
+- SMA-026: Implementierung als Admin-Erinnerung, nicht als automatische Nachricht.
+- docs/spec.md: Widersprüche markiert als gelöst.

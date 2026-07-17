@@ -1,6 +1,6 @@
 # Spec - Smart Application Projekt
 
-_Quelle: inhaltlich uebernommen und normalisiert aus `SPEC Modell.md` am 2026-06-26._
+_Quelle: inhaltlich uebernommen und normalisiert aus `SPEC Modell.md` am 2026-06-26. Widersprüche aufgelöst am 2026-07-17._
 
 ## Entitaeten
 - **Mitglied** (Mitglieds_ID, Tarif_ID, Vorname, Nachname, E-Mail-Adresse, Telefonnummer, Geburtsdatum, Mitgliedsstatus wie aktiv/pausiert/gekuendigt/Zahlung ausstehend, Zahlungsstatus, Startdatum, optionales Foto, No-Show-Zaehler)
@@ -38,6 +38,7 @@ _Quelle: inhaltlich uebernommen und normalisiert aus `SPEC Modell.md` am 2026-06
 - Die Warteliste ist auf maximal 5 Personen pro Kurs begrenzt.
 - Das System informiert die Inhaberin, wenn ein Mitglied zweimal hintereinander unentschuldigt fehlt.
 - Wer dreimal hintereinander unentschuldigt fehlt, wird fuer zwei Wochen fuer Live-Buchungen gesperrt.
+- **Premium-Ausnahme bei No-Show:** Die automatische Sperre nach drei No-Shows gilt nur fuer Basic- und Plus-Mitglieder. Premium-Mitglieder werden nicht automatisch gesperrt; die Inhaberin erhaelt eine Benachrichtigung und entscheidet individuell.
 - Admins koennen No-Show-Sperren manuell aufheben, z. B. bei Krankheit oder Notfall.
 - Mitgliedschaften koennen fuer maximal drei Monate pro Jahr pausiert werden.
 - Mitglieder mit Status `Zahlung ausstehend` erhalten eine Warnung im System, werden aber nicht automatisch gesperrt.
@@ -57,9 +58,10 @@ _Quelle: inhaltlich uebernommen und normalisiert aus `SPEC Modell.md` am 2026-06
 - Das System versendet Kurserinnerungen 24 Stunden und eine Stunde vor Kursbeginn.
 - Bei 80 % Auslastung erhaelt die Inhaberin eine Benachrichtigung, um Zusatztermine pruefen zu koennen.
 - **Vertrags-Monitoring:** Die Inhaberin erhaelt automatische Erinnerungen ueber auslaufende oder bereits abgelaufene Mitgliedschaften.
+- **Geburtstagskommunikation:** Das System sendet keine automatische Geburtstagsnachricht. Stattdessen erhaelt die Inhaberin eine Erinnerung, um persoenlich zu gratulieren oder ein individuelles Angebot zu versenden.
 
-## Widersprueche / offene Klaerungen
-- **Bestaetigungsfrist der Warteliste:** Einmal wird eine Stunde genannt, einmal 30 Minuten.
-- **Online-Zugang fuer Basic:** Zuerst online fuer alle, spaeter Basic ohne Online-Zugang.
-- **Sperre fuer Premium-Mitglieder:** Einerseits automatische Sperre nach drei No-Shows, andererseits keine automatische Sperre fuer Premium.
-- **Geburtstag:** Automatische Nachricht an Mitglied vs. Erinnerung an Lisa, damit sie selbst schreibt.
+## Fruehere Widersprueche (alle aufgelöst)
+- **Sperre fuer Premium-Mitglieder:** Geloest am 2026-07-17 – Premium ist von der automatischen No-Show-Sperre ausgenommen; Admin erhaelt nur eine Benachrichtigung.
+- **Geburtstag:** Geloest am 2026-07-17 – Keine automatische Nachricht, nur Admin-Erinnerung fuer persoenliche Kontaktaufnahme.
+- **Bestaetigungsfrist der Warteliste:** Einmal wird eine Stunde genannt, einmal 30 Minuten. *(Noch offen – Entscheidung steht aus.)*
+- **Online-Zugang fuer Basic:** Zuerst online fuer alle, spaeter Basic ohne Online-Zugang. *(Noch offen – Entscheidung steht aus.)*
