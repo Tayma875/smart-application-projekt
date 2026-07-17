@@ -20,23 +20,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null
 
         const email = credentials.email as string
-        const password = credentials.password as string
 
         // Account in der Datenbank suchen
         const account = await prisma.account.findUnique({
           where: { email },
         })
 
-        if (!account) return null
+        // Wenn Account existiert, normalen Passwort-Vergleich
+        if (account) {
+          const password = credentials.password as string
+          if (account.password !== password) return null
+          return {
+            id: account.id,
+            email: account.email,
+            name: account.rolle,
+            rolle: account.rolle,
+          }
+        }
 
-        // Einfacher Passwort-Vergleich (in Produktion hashen!)
-        if (account.password !== password) return null
-
+        // Demo-Modus: Jede beliebige E-Mail + Passwort = Mitglied
         return {
-          id: account.id,
-          email: account.email,
-          name: account.rolle,
-          rolle: account.rolle,
+          id: email,
+          email: email,
+          name: "Mitglied",
+          rolle: "Mitglied",
         }
       },
     }),

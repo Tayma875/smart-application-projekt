@@ -8,6 +8,9 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-[#76B900]">Smart Fit</h1>
           <p className="text-gray-500 mt-2">Fitnessstudio-Verwaltung</p>
         </div>
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 text-sm p-3 rounded-lg mb-6 text-center">
+          Demo-Modus: Einfach E-Mail + beliebiges Passwort eingeben
+        </div>
         <LoginForm />
       </div>
     </main>
