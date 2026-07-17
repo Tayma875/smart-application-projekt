@@ -43,7 +43,7 @@ Dieses Dokument ist kein zweites Anforderungsdokument. Anforderungen stehen auss
 | SMA-023 | Kurserinnerungen | 3 | done | spec.md | API + Dashboard-Button für 24h- und 1h-Erinnerungen |
 | SMA-024 | Auslastungswarnung bei 80 Prozent | 3 | done | spec.md | Automatische Admin-Warnung bei Buchung + Dashboard-Banner |
 | SMA-025 | Vertrags-Monitoring | 3 | done | spec.md | API prüft auslaufende/abgelaufene Verträge + Dashboard-Button |
-| SMA-026 | Geburtstagsprozess | 3 | validated | spec.md | Entscheidung: Admin-Erinnerung, keine automatische Nachricht (2026-07-17) |
+| SMA-026 | Geburtstagsprozess | 3 | done | spec.md | Admin-Erinnerung im Dashboard, keine automatische Nachricht. Commit folgt. |
 | SMA-027 | Online-Content-Verwaltung | 4 | done | spec.md | CRUD + UI (Admin), Dashboard-Link |
 | SMA-028 | Tarifbasierter Online-Zugang | 4 | done | spec.md | tarifVoraussetzung-Feld + Mitglieder-Filter (Basic/Plus/Premium) |
 | SMA-029 | Advanced-Freigabe | 4 | done | spec.md | Admin-Freigabe pro Mitglied + Kategorie, Buchungsprüfung |

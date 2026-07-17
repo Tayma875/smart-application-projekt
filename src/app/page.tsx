@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { ErinnerungenButton } from "@/components/ErinnerungenButton"
+import { GeburtstagsErinnerung } from "@/components/GeburtstagsErinnerung"
 import { VertragsMonitoringButton } from "@/components/VertragsMonitoringButton"
 
 export default async function Home() {
@@ -120,6 +121,14 @@ export default async function Home() {
             ))}
           </div>
         )}
+
+        {/* SMA-026: Geburtstags-Erinnerung */}
+        {rolle === "Admin" && (
+          <div className="mb-6">
+            <GeburtstagsErinnerung />
+          </div>
+        )}
+
 
         {/* SMA-023: Erinnerungen manuell auslösen */}
         {rolle === "Admin" && (
