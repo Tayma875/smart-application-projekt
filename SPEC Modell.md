@@ -62,3 +62,7 @@ n:m Beziehungen
 **Auflösung (2026-07-17)**
 - **Wartelisten-Bestätigungsfrist:** Nachgerückte Mitglieder haben 60 Minuten Zeit, die Buchung zu bestätigen, sonst verfällt der Anspruch.
 - **Online-Zugang für Basic:** Basic erhält eingeschränkten Online-Zugang (On-Demand-Videos, keine Live-Streams).
+**No-Show-Sperre für Premium-Mitglieder**
+Die automatische Sperre nach drei No-Shows gilt nur für Basic- und Plus-Mitglieder. Premium-Mitglieder besitzen aufgrund ihres Tarifs erweiterte Stornierungsrechte und sollen daher nicht automatisch gesperrt werden. Stattdessen erhält Lisa eine Benachrichtigung und entscheidet individuell, ob eine Sperre verhängt wird.
+**Geburtstagsnachrichten**
+Das System verschickt keine automatische Geburtstagsnachricht an Mitglieder. Stattdessen erinnert es Lisa daran, dass ein Mitglied Geburtstag hat. Die Glückwünsche oder ein individuelles Angebot werden anschließend persönlich von Lisa versendet, um den persönlichen Kontakt zu stärken und sich von großen Fitnessketten abzuheben.
