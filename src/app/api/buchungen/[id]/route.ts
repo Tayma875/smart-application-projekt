@@ -110,7 +110,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     include: { termin: { include: { kurs: true } }, mitglied: { select: { vorname: true, nachname: true } } },
   })
 
-  // Warteliste nachrücken
+  // SMA-014: Warteliste nachrücken mit 60 Minuten Bestätigungsfrist
   const naechsterWarte = await prisma.wartelistenEintrag.findFirst({
     where: { terminId: buchung.terminId },
     orderBy: { reihenfolge: "asc" },
@@ -126,13 +126,21 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         where: { terminId: buchung.terminId, teilnahmeStatus: { not: "storniert" } },
       })
       if (aktuelleBuchungen < kapazitaet) {
-        await prisma.buchung.create({
-          data: { mitgliedId: naechsterWarte.mitgliedId, terminId: buchung.terminId, buchungszeitpunkt: new Date(), teilnahmeStatus: "angemeldet" },
+        const bestaetigtBis = new Date(Date.now() + 60 * 60 * 1000)
+        await prisma.wartelistenEintrag.update({
+          where: { id: naechsterWarte.id },
+          data: { bestaetigtBis },
         })
-        await prisma.wartelistenEintrag.delete({ where: { id: naechsterWarte.id } })
-        const rest = await prisma.wartelistenEintrag.findMany({ where: { terminId: buchung.terminId }, orderBy: { reihenfolge: "asc" } })
-        for (let i = 0; i < rest.length; i++) {
-          await prisma.wartelistenEintrag.update({ where: { id: rest[i].id }, data: { reihenfolge: i + 1 } })
+        const mitglied = await prisma.mitglied.findUnique({ where: { id: naechsterWarte.mitgliedId } })
+        if (mitglied) {
+          await prisma.benachrichtigung.create({
+            data: {
+              typ: "info",
+              titel: "Platz freigeworden – Bestätigung erforderlich",
+              inhalt: `Es wurde ein Platz in "${termin.kurs.name}" am ${new Date(termin.datum).toLocaleDateString("de-DE")} um ${termin.uhrzeit} frei. Bitte innerhalb von 60 Minuten bestätigen, sonst verfällt der Anspruch.`,
+              mitgliedId: mitglied.id,
+            },
+          })
         }
       }
     }

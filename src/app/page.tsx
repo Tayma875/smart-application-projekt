@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { ErinnerungenButton } from "@/components/ErinnerungenButton"
 import { GeburtstagsErinnerung } from "@/components/GeburtstagsErinnerung"
 import { VertragsMonitoringButton } from "@/components/VertragsMonitoringButton"
+import { WartelisteCleanupButton } from "@/components/WartelisteCleanupButton"
 
 export default async function Home() {
   const session = await auth()
@@ -151,13 +152,16 @@ export default async function Home() {
               <DashboardCard title="Online-Content" href="/admin/online-content" desc="Verwalten" />
               <DashboardCard title="Advanced-Freigabe" href="/admin/advanced-freigabe" desc="Fortgeschrittenenkurse" />
               <DashboardCard title="Abrechnung" href="/admin/abrechnung" desc="Honorartrainer" />
-            <>
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="font-semibold text-gray-800">Vertrags-Monitoring</h3>
                 <p className="text-xs text-gray-500 mt-1 mb-3">Auslaufende/abgelaufene Mitgliedschaften prüfen</p>
                 <VertragsMonitoringButton />
               </div>
-            </>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-800">Wartelisten-Bestätigungen</h3>
+                <p className="text-xs text-gray-500 mt-1 mb-3">Abgelaufene Bestätigungsfristen (60 Min) bereinigen</p>
+                <WartelisteCleanupButton />
+              </div>
             </>
           )}
           {rolle === "Rezeption" && (

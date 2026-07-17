@@ -162,6 +162,7 @@ model WartelistenEintrag {
   terminId  String
   termin    Kurstermin @relation(fields: [terminId], references: [id])
   reihenfolge Int
+  bestaetigtBis DateTime?
   eintragungszeitpunkt DateTime @default(now())
   createdAt DateTime @default(now())
 

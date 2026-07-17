@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { KursBuchen } from "./KursBuchen"
+import { WartelisteBestaetigung } from "@/components/WartelisteBestaetigung"
 
 export default async function MitgliedKursePage() {
   const session = await auth()
@@ -25,6 +26,7 @@ export default async function MitgliedKursePage() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h2 className="text-xl font-semibold mb-6">Kurse buchen</h2>
+      <WartelisteBestaetigung mitgliedId={mitglied.id} />
       <KursBuchen
         termine={JSON.parse(JSON.stringify(termine))}
         mitgliedId={mitglied.id}
