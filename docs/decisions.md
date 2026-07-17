@@ -123,3 +123,22 @@ Kontakt zu stärken und sich von großen Ketten abzuheben.
 - SMA-017: Implementierung muss Premium von automatischer Sperre ausnehmen.
 - SMA-026: Implementierung als Admin-Erinnerung, nicht als automatische Nachricht.
 - docs/spec.md: Widersprüche markiert als gelöst.
+
+## 2026-07-17 - Widersprüche aufgelöst: Wartelistenfrist & Basic Online-Zugang
+
+**Kontext:** Die Spec enthielt zwei weitere offene Widersprüche (Wartelisten-Bestätigungsfrist, Online-Zugang für Basic). Lisa hat nun entschieden.
+
+### Entscheidung Wartelisten-Bestätigungsfrist
+Nachgerückte Mitglieder von der Warteliste haben 60 Minuten Zeit, die Buchung zu bestätigen. Bei Fristablauf verfällt der Anspruch und der nächste Platz auf der Warteliste rückt nach.
+
+### Entscheidung Online-Zugang für Basic
+Basic erhält eingeschränkten Online-Zugang: nur On-Demand-Videos, keine Live-Streams. Plus erhält Videos und Live-Streams. Premium alles unbegrenzt.
+
+### Alternativen verworfen
+- 30 Minuten Frist: Zu knapp für Mitglieder, die nicht sofort reagieren können.
+- Basic ohne Online-Zugang: Würde Basic-Tarif im Vergleich zu Mitbewerbern unattraktiv machen.
+
+### Konsequenzen
+- SMA-014: Bestätigungslogik muss 60-Minuten-Frist implementieren (aktuell keine Frist).
+- SMA-028: Basic-Online-Berechtigung in der Prüfung aktualisieren (eingeschränkt statt "kein" Zugang).
+- docs/spec.md: Letzte zwei Widersprüche als gelöst markiert.

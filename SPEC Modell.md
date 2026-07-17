@@ -52,6 +52,13 @@ n:m Beziehungen
 - **Vertrags-Monitoring:** Die Inhaberin erhält automatische Erinnerungen über **auslaufende oder bereits abgelaufene Mitgliedschaften**.
 
 
-**Widersprüche**
+**Widersprüche (gelöst am 2026-07-17)**
 - **Sperre für Premium-Mitglieder:** Lisa möchte eine automatische Sperre bei dreimaligem Fehlen (No-Show). An anderer Stelle sagt sie jedoch explizit, dass es für Premium-Mitglieder keine automatische Sperre geben soll, sondern sie nur informiert werden möchte, um persönlich zu entscheiden.
 - **Geburtstag:** Das System sendet am Geburtstag eines Mitglieds automatisch eine personalisierte Nachricht aber Lisa erwähnt, dass das System sie erinnern soll, wenn jemand Geburtstag hat, aber selber der Person schreibt
+**Auflösung (2026-07-17)**
+- **No-Show-Sperre:** Die automatische Sperre nach drei No-Shows gilt nur für Basic- und Plus-Mitglieder. Premium-Mitglieder werden nicht automatisch gesperrt; Lisa erhält eine Benachrichtigung und entscheidet individuell.
+- **Geburtstag:** Keine automatische Nachricht. Lisa wird erinnert und schreibt persönlich, um den persönlichen Kontakt zu stärken.
+
+**Auflösung (2026-07-17)**
+- **Wartelisten-Bestätigungsfrist:** Nachgerückte Mitglieder haben 60 Minuten Zeit, die Buchung zu bestätigen, sonst verfällt der Anspruch.
+- **Online-Zugang für Basic:** Basic erhält eingeschränkten Online-Zugang (On-Demand-Videos, keine Live-Streams).

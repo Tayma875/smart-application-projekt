@@ -50,14 +50,24 @@ Dieses Dokument haelt die technische Wahrheit fest: Domaenenmodell, Rollen, Syst
 - `attendance.no_show_recorded`: No-Show-Zaehler aktualisieren, ggf. Warnung/Sperre.
 - `class.reminder_due_24h` und `class.reminder_due_1h`: Kurserinnerungen.
 - `membership.contract_expiring`: Admin-Erinnerung.
-- `birthday.due`: offen, ob Admin-Erinnerung oder automatische Mitgliedsnachricht.
+- `birthday.due`: Admin-Erinnerung, keine automatische Nachricht (entschieden 2026-07-17).
 
-## Noch offene technische Entscheidungen
-- Framework und Programmiersprache.
-- Datenbank und Migrationsstrategie.
-- Authentifizierung und Rollenmodell.
-- Benachrichtigungskanaele.
-- Deployment/Hosting.
+## Technische Entscheidungen (alle getroffen)
+
+Alle technischen Entscheidungen wurden in `docs/decisions.md` dokumentiert:
+
+| Entscheidung | Datum |
+|---|---|
+| Framework: Next.js 14 (App Router) + TypeScript | 2026-07-13 |
+| Datenbank: SQLite via Prisma ORM | 2026-07-13 |
+| UI: Tailwind CSS + shadcn/ui | 2026-07-13 |
+| Auth: Auth.js (NextAuth.js v5) | 2026-07-13 |
+| Testing: Vitest (Unit) + Playwright (E2E) | 2026-07-13 |
+| Hosting: Lokal (Entwicklung) | 2026-07-13 |
+| Premium-No-Show-Ausnahme | 2026-07-17 |
+| Geburtstag: Admin-Erinnerung statt Auto-Nachricht | 2026-07-17 |
+| Wartelisten-Bestaetigungsfrist: 60 Min | 2026-07-17 |
+| Basic Online-Zugang: eingeschraenkt | 2026-07-17 |
 - Audit-Log fuer kritische Admin-Aktionen.
 
 ## Testfokus

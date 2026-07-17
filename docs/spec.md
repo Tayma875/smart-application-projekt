@@ -35,7 +35,7 @@ _Quelle: inhaltlich uebernommen und normalisiert aus `SPEC Modell.md` am 2026-06
 ## Geschaeftsregeln
 - Buchungen und kostenfreie Stornierungen muessen bis spaetestens zwei Stunden vor Kursbeginn erfolgen.
 - Bei einer Absage weniger als zwei Stunden vor Beginn wird eine Gebuehr faellig (50 % des Kurspreises), ausser bei Premium-Mitgliedern.
-- Die Warteliste ist auf maximal 5 Personen pro Kurs begrenzt.
+- Die Warteliste ist auf maximal 5 Personen pro Kurs begrenzt. Nachgerückte Mitglieder haben 60 Minuten Zeit, die Buchung zu bestätigen, sonst verfällt der Anspruch.
 - Das System informiert die Inhaberin, wenn ein Mitglied zweimal hintereinander unentschuldigt fehlt.
 - Wer dreimal hintereinander unentschuldigt fehlt, wird fuer zwei Wochen fuer Live-Buchungen gesperrt.
 - **Premium-Ausnahme bei No-Show:** Die automatische Sperre nach drei No-Shows gilt nur fuer Basic- und Plus-Mitglieder. Premium-Mitglieder werden nicht automatisch gesperrt; die Inhaberin erhaelt eine Benachrichtigung und entscheidet individuell.
@@ -49,7 +49,7 @@ _Quelle: inhaltlich uebernommen und normalisiert aus `SPEC Modell.md` am 2026-06
 - **Warnsystem bei Trainerausfall:** Bei kurzfristigem Ausfall wird zuerst eine interne Warnung fuer die Inhaberin erzeugt. Die Inhaberin kann vor Absage manuell einen Ersatztrainer eintragen.
 - Erst wenn die Inhaberin einen Kurs explizit als abgesagt markiert, startet der automatisierte Kommunikations- und Stornierungsprozess.
 - Bei Kursabsage erhalten gebuchte Mitglieder und Wartelistenpersonen sofort eine automatische Benachrichtigung. Buchungen werden ohne Gebuehr storniert und Kontingente werden freigegeben.
-- Basic erhaelt nur Studio-Zugang. Plus erhaelt Online-Videos und Live-Streams. Premium erhaelt alles unbegrenzt.
+- Basic erhaelt eingeschraenkten Online-Zugang (nur On-Demand-Videos, keine Live-Streams). Plus erhaelt Online-Videos und Live-Streams. Premium erhaelt alles unbegrenzt.
 - Fuer Honorartrainer generiert das System fuer frei waehlbare Zeitraeume eine Uebersicht aller durchgefuehrten Kurstermine mit Datum, Kursname und Dauer.
 - Nur Termine mit Status `stattgefunden` duerfen in die Honorarabrechnung einfliessen.
 - Anfaenger- und Mittelkurse bleiben fuer alle aktiven Mitglieder frei buchbar.
@@ -63,5 +63,5 @@ _Quelle: inhaltlich uebernommen und normalisiert aus `SPEC Modell.md` am 2026-06
 ## Fruehere Widersprueche (alle aufgelöst)
 - **Sperre fuer Premium-Mitglieder:** Geloest am 2026-07-17 – Premium ist von der automatischen No-Show-Sperre ausgenommen; Admin erhaelt nur eine Benachrichtigung.
 - **Geburtstag:** Geloest am 2026-07-17 – Keine automatische Nachricht, nur Admin-Erinnerung fuer persoenliche Kontaktaufnahme.
-- **Bestaetigungsfrist der Warteliste:** Einmal wird eine Stunde genannt, einmal 30 Minuten. *(Noch offen – Entscheidung steht aus.)*
-- **Online-Zugang fuer Basic:** Zuerst online fuer alle, spaeter Basic ohne Online-Zugang. *(Noch offen – Entscheidung steht aus.)*
+- **Bestaetigungsfrist der Warteliste:** Geloest am 2026-07-17 – 60 Minuten Bestaetigungsfrist fuer nachgerueckte Mitglieder.
+- **Online-Zugang fuer Basic:** Geloest am 2026-07-17 – Basic erhaelt eingeschraenkten Online-Zugang (On-Demand-Videos, keine Live-Streams).
