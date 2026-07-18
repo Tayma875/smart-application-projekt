@@ -67,6 +67,57 @@ export default async function Home() {
     })
   }
 
+  // KPI-Daten
+  let kpiAktiveMitglieder = 0
+  let kpiKurseDieseWoche = 0
+  let kpiAuslastungProzent = 0
+  let kpiMonatsUmsatz = 0
+  let kpiTrendMitglieder = "+0"
+
+  if (rolle === "Admin") {
+    // Aktive Mitglieder
+    kpiAktiveMitglieder = await prisma.mitglied.count({ where: { status: "aktiv" } })
+
+    // Kurse diese Woche
+    const wochenStart = new Date()
+    wochenStart.setHours(0, 0, 0, 0)
+    const wochenEnde = new Date(wochenStart)
+    wochenEnde.setDate(wochenEnde.getDate() + 7)
+    kpiKurseDieseWoche = await prisma.kurstermin.count({
+      where: { datum: { gte: wochenStart, lte: wochenEnde }, status: { not: "abgesagt" } },
+    })
+
+    // Durchschnittliche Auslastung
+    const alleTermine = await prisma.kurstermin.findMany({
+      where: { datum: { gte: wochenStart, lte: wochenEnde } },
+      include: { kurs: true, raum: true, _count: { select: { buchungen: { where: { teilnahmeStatus: { not: "storniert" } } } } } },
+    })
+    const auslastungen = alleTermine.map(t => {
+      const kap = Math.min(t.kurs.maxTeilnehmer, t.raum.kapazitaet)
+      return kap > 0 ? t._count.buchungen / kap : 0
+    })
+    kpiAuslastungProzent = auslastungen.length > 0
+      ? Math.round((auslastungen.reduce((a, b) => a + b, 0) / auslastungen.length) * 100)
+      : 0
+
+    // Geschätzter Monatsumsatz aus aktiven Mitgliedern
+    const mitgliederMitTarif = await prisma.mitglied.findMany({
+      where: { status: "aktiv" },
+      include: { tarif: { select: { monatspreis: true } } },
+    })
+    kpiMonatsUmsatz = mitgliederMitTarif.reduce((sum, m) => sum + (m.tarif?.monatspreis || 0), 0)
+
+    // Trend: Vergleich zum Vormonat
+    const letzterMonat = new Date()
+    letzterMonat.setMonth(letzterMonat.getMonth() - 1)
+    const mitgliederVormonat = await prisma.mitgliedsHistorie.groupBy({
+      by: ["mitgliedId"],
+      where: { startdatum: { lte: letzterMonat }, enddatum: { gte: letzterMonat } },
+    })
+    const diff = kpiAktiveMitglieder - mitgliederVormonat.length
+    kpiTrendMitglieder = diff >= 0 ? `+${diff}` : `${diff}`
+  }
+
   return (
     <main className="min-h-screen bg-[#F0F2F5]">
 
@@ -166,6 +217,35 @@ export default async function Home() {
 
 
 
+
+        {/* KPI-Kacheln */}
+        {rolle === "Admin" && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Aktive Mitglieder</p>
+              <p className="text-2xl font-bold text-[#0F172A] mt-1">{kpiAktiveMitglieder}</p>
+              <p className="text-xs text-green-600 mt-0.5">{kpiTrendMitglieder} zum Vormonat</p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Kurse diese Woche</p>
+              <p className="text-2xl font-bold text-[#0F172A] mt-1">{kpiKurseDieseWoche}</p>
+              <p className="text-xs text-gray-400 mt-0.5">Termine im Plan</p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Auslastung</p>
+              <p className="text-2xl font-bold text-[#0F172A] mt-1">{kpiAuslastungProzent}%</p>
+              <div className="mt-1.5 w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-[#76B900] rounded-full"
+                  style={{ width: `${kpiAuslastungProzent}%` }} />
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Monatsumsatz (geschätzt)</p>
+              <p className="text-2xl font-bold text-[#0F172A] mt-1">{kpiMonatsUmsatz.toLocaleString("de-DE")} €</p>
+              <p className="text-xs text-gray-400 mt-0.5">aus aktiven Tarifen</p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rolle === "Admin" && (
