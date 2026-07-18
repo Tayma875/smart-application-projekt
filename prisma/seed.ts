@@ -1,8 +1,25 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  // Vorhandene Daten in richtiger Reihenfolge löschen
+  await prisma.auditLog.deleteMany({});
+  await prisma.benachrichtigung.deleteMany({});
+  await prisma.advancedFreigabe.deleteMany({});
+  await prisma.wartelistenEintrag.deleteMany({});
+  await prisma.buchung.deleteMany({});
+  await prisma.mitgliedsHistorie.deleteMany({});
+  await prisma.mitglied.deleteMany({});
+  await prisma.kurstermin.deleteMany({});
+  await prisma.trainerKurs.deleteMany({});
+  await prisma.trainer.deleteMany({});
+  await prisma.raum.deleteMany({});
+  await prisma.kurs.deleteMany({});
+  await prisma.tarif.deleteMany({});
+  await prisma.onlineContent.deleteMany({});
+  await prisma.account.deleteMany({});
   console.log("🌱 Starte Seed...\n");
 
   // ── Tarife ──────────────────────────────────────────────
@@ -117,13 +134,10 @@ async function main() {
   console.log("  ✓ 4 Kurse angelegt");
 
   // ── Accounts ────────────────────────────────────────────
-  // Vorhandene Accounts löschen, damit wir sauber neu anlegen
-  await prisma.account.deleteMany({});
-
   const adminAccount = await prisma.account.create({
     data: {
       email: "lisa@smart-fitness.de",
-      password: "admin123", //在生产中应使用哈希密码
+      password: await bcrypt.hash("admin123", 10), //在生产中应使用哈希密码
       rolle: "Admin",
     },
   });
@@ -132,7 +146,7 @@ async function main() {
   const rezeptionAccount = await prisma.account.create({
     data: {
       email: "rezeption@smart-fitness.de",
-      password: "rezeption123",
+      password: await bcrypt.hash("rezeption123", 10),
       rolle: "Rezeption",
     },
   });
@@ -141,14 +155,14 @@ async function main() {
   const trainerAccount = await prisma.account.create({
     data: {
       email: "trainer@smart-fitness.de",
-      password: "trainer123",
+      password: await bcrypt.hash("trainer123", 10),
       rolle: "Trainer",
     },
   });
   const trainerAccount2 = await prisma.account.create({
     data: {
       email: "tom@smart-fitness.de",
-      password: "trainer123",
+      password: await bcrypt.hash("trainer123", 10),
       rolle: "Trainer",
     },
   });
@@ -157,14 +171,14 @@ async function main() {
   const mitgliedAccount = await prisma.account.create({
     data: {
       email: "max@example.com",
-      password: "mitglied123",
+      password: await bcrypt.hash("mitglied123", 10),
       rolle: "Mitglied",
     },
   });
   const mitgliedAccount2 = await prisma.account.create({
     data: {
       email: "anna@example.com",
-      password: "mitglied123",
+      password: await bcrypt.hash("mitglied123", 10),
       rolle: "Mitglied",
     },
   });
@@ -202,9 +216,6 @@ async function main() {
   console.log("  ✓ Trainer-Qualifikationen zugewiesen");
 
   // ── Mitglieder ──────────────────────────────────────────
-  // Vorhandene Mitglieder löschen (wegen abhängiger Buchungen etc.)
-  await prisma.mitglied.deleteMany({});
-
   const mitgliedMax = await prisma.mitglied.create({
     data: {
       accountId: mitgliedAccount.id,

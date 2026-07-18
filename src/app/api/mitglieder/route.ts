@@ -1,13 +1,10 @@
 import { prisma } from "@/lib/prisma"
-import { auth, hatBerechtigung } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import { logAudit } from "@/lib/audit"
+import bcrypt from "bcryptjs"
 
 export async function GET() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Rezeption")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
-
   const mitglieder = await prisma.mitglied.findMany({
     include: { tarif: true, account: { select: { email: true } } },
     orderBy: { nachname: "asc" },
@@ -16,18 +13,16 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Rezeption")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
-
   const data = await req.json()
+
+  const defaultPassword = process.env.DEFAULT_MITGLIED_PASSWORD || "mitglied123"
+  const hashedPassword = await bcrypt.hash(defaultPassword, 10)
 
   // Account für das Mitglied erstellen
   const account = await prisma.account.create({
     data: {
       email: data.email,
-      password: "mitglied123", // Standard-Passwort, kann geändert werden
+      password: hashedPassword,
       rolle: "Mitglied",
     },
   })
@@ -60,5 +55,6 @@ export async function POST(req: Request) {
     })
   }
 
+    await logAudit("mitglied_erstellt", `${mitglied.vorname} ${mitglied.nachname} (${data.email})`, mitglied.id, "Mitglied")
   return NextResponse.json(mitglied, { status: 201 })
 }

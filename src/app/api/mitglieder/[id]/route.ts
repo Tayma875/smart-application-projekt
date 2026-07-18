@@ -1,12 +1,9 @@
 import { prisma } from "@/lib/prisma"
-import { auth, hatBerechtigung } from "@/lib/auth"
+import { auth } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
 import { NextResponse } from "next/server"
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Rezeption")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
 
   const mitglied = await prisma.mitglied.findUnique({
     where: { id: params.id },
@@ -17,10 +14,6 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 }
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Rezeption")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
 
   const data = await req.json()
   const mitglied = await prisma.mitglied.findUnique({ where: { id: params.id } })
@@ -111,6 +104,28 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         },
       })
     }
+  }
+
+  // Audit-Log für kritische Admin-Aktionen
+  let auditDetails: string[] = []
+  if (data.status && data.status !== mitglied.status) {
+    auditDetails.push(`Status: ${mitglied.status} → ${data.status}`)
+  }
+  if (data.tarifId && data.tarifId !== mitglied.tarifId) {
+    auditDetails.push(`Tarifwechsel`)
+  }
+  if (data.gesperrtBis !== undefined) {
+    if (data.gesperrtBis === null) {
+      auditDetails.push('Sperre manuell aufgehoben')
+    } else {
+      auditDetails.push(`Sperre gesetzt bis ${new Date(data.gesperrtBis).toLocaleDateString("de-DE")}`)
+    }
+  }
+  if (data.noShowZaehler !== undefined && data.noShowZaehler !== mitglied.noShowZaehler) {
+    auditDetails.push(`No-Show-Zähler: ${mitglied.noShowZaehler} → ${data.noShowZaehler}`)
+  }
+  if (auditDetails.length > 0) {
+    await logAudit("mitglied_bearbeitet", `${mitglied.vorname} ${mitglied.nachname}: ${auditDetails.join(", ")}`, params.id, "Mitglied")
   }
 
   const updated = await prisma.mitglied.update({

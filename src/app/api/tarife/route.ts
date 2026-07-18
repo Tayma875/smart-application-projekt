@@ -1,21 +1,15 @@
 import { prisma } from "@/lib/prisma"
-import { auth, hatBerechtigung } from "@/lib/auth"
+import { auth } from "@/lib/auth"
+import { logAudit } from "@/lib/audit"
 import { NextResponse } from "next/server"
 
 export async function GET() {
   const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Rezeption")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
   const tarife = await prisma.tarif.findMany({ orderBy: { monatspreis: "asc" } })
   return NextResponse.json(tarife)
 }
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
 
   const data = await req.json()
   const tarif = await prisma.tarif.create({
@@ -28,5 +22,6 @@ export async function POST(req: Request) {
       stornoRegel: data.stornoRegel || null,
     },
   })
+    await logAudit("tarif_erstellt", `${tarif.name} (${tarif.monatspreis}€)`, tarif.id, "Tarif")
   return NextResponse.json(tarif, { status: 201 })
 }

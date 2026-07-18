@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
   provider = "sqlite"
 }
 
@@ -203,5 +203,16 @@ model Benachrichtigung {
   mitgliedId String?
   terminId  String?
   gelesen   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  aktion    String   // z.B. "mitglied_erstellt", "tarif_geloescht", "sperre_aufgehoben"
+  adminId   String?
+  adminEmail String?
+  details   String?
+  entityId  String?  // ID der betroffenen Entität
+  entityTyp String?  // "Mitglied", "Tarif", "Kurs", etc.
   createdAt DateTime @default(now())
 }
