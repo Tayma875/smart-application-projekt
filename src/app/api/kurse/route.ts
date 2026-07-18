@@ -1,16 +1,16 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import { logAudit } from "@/lib/audit"
 
-export async function GET()
-import { logAudit } from "@/lib/audit" {
-
+export async function GET() {
   const kurse = await prisma.kurs.findMany({ orderBy: { name: "asc" } })
   return NextResponse.json(kurse)
 }
 
 export async function POST(req: Request) {
   const session = await auth()
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
   const data = await req.json()
   const kurs = await prisma.kurs.create({
     data: {
@@ -23,6 +23,6 @@ export async function POST(req: Request) {
       voraussetzungId: data.voraussetzungId || null,
     },
   })
-    await logAudit("kurs_erstellt", `${kurs.name}`, kurs.id, "Kurs")
+  await logAudit("kurs_erstellt", `${kurs.name}`, kurs.id, "Kurs")
   return NextResponse.json(kurs, { status: 201 })
 }

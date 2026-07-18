@@ -1,12 +1,7 @@
-import { auth, hatBerechtigung } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { OnlineContentVerwaltung } from "./OnlineContentVerwaltung"
 
 export default async function OnlineContentPage() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) redirect("/login")
-
   const [content, kurse] = await Promise.all([
     prisma.onlineContent.findMany({ include: { kurs: true }, orderBy: { createdAt: "desc" } }),
     prisma.kurs.findMany({ orderBy: { name: "asc" } }),

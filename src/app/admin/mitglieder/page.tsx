@@ -1,13 +1,7 @@
-import { auth, hatBerechtigung } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { MitgliederListe } from "./MitgliederListe"
 import { prisma } from "@/lib/prisma"
 
 export default async function MitgliederPage() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Rezeption")) {
-    redirect("/login")
-  }
 
   const mitglieder = await prisma.mitglied.findMany({
     include: { tarif: true },

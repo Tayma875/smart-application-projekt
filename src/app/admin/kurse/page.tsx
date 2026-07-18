@@ -1,12 +1,7 @@
-import { auth, hatBerechtigung } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { KursVerwaltung } from "./KursVerwaltung"
 
 export default async function KursePage() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) redirect("/login")
-
   const kurse = await prisma.kurs.findMany({ orderBy: { name: "asc" } })
 
   return (

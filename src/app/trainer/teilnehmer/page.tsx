@@ -1,14 +1,12 @@
 import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { AnwesenheitListe } from "./AnwesenheitListe"
 
 export default async function TrainerTeilnehmerPage(props: { searchParams: Promise<{ terminId: string }> }) {
   const session = await auth()
-  if (!session?.user || session.user.rolle !== "Trainer") redirect("/login")
+  const trainer = await prisma.trainer.findFirst({ where: { accountId: session?.user?.userId } })
   const { terminId } = await props.searchParams
 
-  const trainer = await prisma.trainer.findFirst({ where: { accountId: session.user.userId } })
   if (!trainer) return <p className="p-6">Kein Trainer-Profil gefunden</p>
 
   if (!terminId) {

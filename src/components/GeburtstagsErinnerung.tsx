@@ -2,13 +2,17 @@
 
 import { useState, useEffect } from "react"
 
+interface GeburtstagsKind {
+  vorname: string
+  nachname: string
+}
+
 export function GeburtstagsErinnerung() {
   const [loading, setLoading] = useState(false)
-  const [geburtstage, setGeburtstage] = useState<{ vorname: string; nachname: string }[]>([])
+  const [geburtstage, setGeburtstage] = useState<GeburtstagsKind[]>([])
   const [erzeugt, setErzeugt] = useState(false)
 
   useEffect(() => {
-    // Beim Laden prüfen, ob schon Erinnerungen existieren
     fetch("/api/geburtstage")
       .then((r) => r.json())
       .then((data) => {
@@ -36,31 +40,26 @@ export function GeburtstagsErinnerung() {
         setGeburtstage(data.mitglieder)
         setErzeugt(data.erinnerungenErzeugt > 0 || data.mitglieder.length > 0)
       }
-    } catch {
-      // silent
-    }
+    } catch { /* silent */ }
     setLoading(false)
   }
 
-  // Automatisch checken beim ersten Rendern
   useEffect(() => {
     if (!erzeugt) checken()
   }, [])
 
-  if (geburtstage.length === 0 && !loading) return null
-
   return (
-    <div className="bg-pink-50 border border-pink-200 rounded-xl px-5 py-3 flex items-center gap-3">
-      <span className="text-xl">🎂</span>
-      <div>
-        <p className="text-sm text-pink-800">
-          <strong>Geburtstag{geburtstage.length > 1 ? "e" : ""}:</strong>{" "}
-          {geburtstage.map((m) => `${m.vorname} ${m.nachname}`).join(", ")}
+    <div className="min-w-0">
+      <h3 className="font-semibold text-[#0F172A]">Geburtstage</h3>
+      {geburtstage.length > 0 ? (
+        <p className="text-sm text-[#94A3B8] mt-0.5 font-light">
+          🎂 {geburtstage.map((m) => `${m.vorname} ${m.nachname}`).join(", ")}
         </p>
-        <p className="text-xs text-pink-600 mt-0.5">
-          Bitte persönlich gratulieren oder ein individuelles Angebot versenden.
+      ) : (
+        <p className="text-sm text-[#94A3B8] mt-0.5 font-light">
+          {loading ? "Prüfe..." : "Heute keine Geburtstage"}
         </p>
-      </div>
+      )}
     </div>
   )
 }

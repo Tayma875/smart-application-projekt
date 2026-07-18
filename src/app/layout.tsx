@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import Navbar from "@/components/Navbar"
 
 export const metadata: Metadata = {
   title: "Smart Fit – Fitnessstudio Verwaltung",
@@ -13,7 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        {children}
+      </body>
     </html>
   )
 }

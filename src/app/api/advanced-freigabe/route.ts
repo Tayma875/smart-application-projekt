@@ -1,13 +1,10 @@
 import { prisma } from "@/lib/prisma"
-import { auth, hatBerechtigung } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 
 export async function GET() {
   const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
-
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
   const freigaben = await prisma.advancedFreigabe.findMany({
     include: { mitglied: { select: { vorname: true, nachname: true, email: true } } },
     orderBy: { createdAt: "desc" },
@@ -17,10 +14,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
-
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
   const data = await req.json()
 
   const exist = await prisma.advancedFreigabe.findUnique({
@@ -63,9 +57,7 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
   const { id } = await req.json()
   await prisma.advancedFreigabe.delete({ where: { id } })
   return NextResponse.json({ success: true })

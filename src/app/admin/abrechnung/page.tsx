@@ -1,12 +1,7 @@
-import { auth, hatBerechtigung } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { AbrechnungView } from "./AbrechnungView"
 
 export default async function AbrechnungPage() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) redirect("/login")
-
   const trainer = await prisma.trainer.findMany({
     where: { beschaeftigungsart: "honorarbasis" },
     orderBy: { name: "asc" },

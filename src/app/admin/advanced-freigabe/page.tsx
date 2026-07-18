@@ -1,12 +1,7 @@
-import { auth, hatBerechtigung } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { AdvancedFreigabeVerwaltung } from "./AdvancedFreigabeVerwaltung"
 
 export default async function AdvancedFreigabePage() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) redirect("/login")
-
   const [freigaben, mitglieder] = await Promise.all([
     prisma.advancedFreigabe.findMany({
       include: { mitglied: { select: { vorname: true, nachname: true, email: true } } },

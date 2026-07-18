@@ -5,6 +5,7 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   const session = await auth()
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
   const tarife = await prisma.tarif.findMany({ orderBy: { monatspreis: "asc" } })
   return NextResponse.json(tarife)
 }

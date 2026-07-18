@@ -1,12 +1,7 @@
-import { auth, hatBerechtigung } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { TerminVerwaltung } from "./TerminVerwaltung"
 
 export default async function KursterminePage() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) redirect("/login")
-
   const [termine, kurse, raeume, trainer] = await Promise.all([
     prisma.kurstermin.findMany({ include: { kurs: true, raum: true, trainer: true, _count: { select: { buchungen: true } } }, orderBy: [{ datum: "asc" }, { uhrzeit: "asc" }] }),
     prisma.kurs.findMany({ orderBy: { name: "asc" } }),

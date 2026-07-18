@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const session = await auth()
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
   const data = await req.json()
   const updateData: any = {}
   if (data.name) updateData.name = data.name

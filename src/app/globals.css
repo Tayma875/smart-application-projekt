@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background-color: #F0F2F5;
+  color: #1E293B;
+}
+
+/* Sanftes Scrollen */
+html {
+  scroll-behavior: smooth;
 }

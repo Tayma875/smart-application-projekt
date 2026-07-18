@@ -6,6 +6,7 @@ const PAGE_SIZE = 50
 
 export async function POST(req: Request) {
   const session = await auth()
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
 
   const data = await req.json()
   const { mitgliedId, terminId } = data
@@ -124,6 +125,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const session = await auth()
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
   const url = new URL(req.url)
   const page = parseInt(url.searchParams.get("page") || "1")
   const skip = (page - 1) * PAGE_SIZE

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 
 export async function GET(req: Request) {
   const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
+if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
 
   const url = new URL(req.url)
   const von = url.searchParams.get("von")

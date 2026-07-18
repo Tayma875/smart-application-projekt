@@ -1,12 +1,8 @@
 import { prisma } from "@/lib/prisma"
-import { auth, hatBerechtigung } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 
 export async function GET() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
 
   const jetzt = new Date()
   const in30Tagen = new Date(jetzt.getTime() + 30 * 24 * 60 * 60 * 1000)
@@ -56,10 +52,6 @@ export async function GET() {
 }
 
 export async function POST() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
 
   const res = await GET()
   const data = await res.json()

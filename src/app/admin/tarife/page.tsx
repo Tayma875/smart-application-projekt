@@ -1,13 +1,7 @@
-import { auth, hatBerechtigung } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { TarifVerwaltung } from "./TarifVerwaltung"
 
 export default async function TarifePage() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    redirect("/login")
-  }
 
   const tarife = await prisma.tarif.findMany({ orderBy: { monatspreis: "asc" } })
 

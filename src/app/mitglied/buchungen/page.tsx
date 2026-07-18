@@ -1,17 +1,14 @@
 import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { BuchungenListe } from "./BuchungenListe"
 
 export default async function MeineBuchungenPage() {
   const session = await auth()
-  if (!session?.user || session.user.rolle !== "Mitglied") redirect("/login")
-
   const mitglied = await prisma.mitglied.findFirst({
-    where: { accountId: session.user.userId },
+    where: { accountId: session?.user?.userId },
     include: {
       buchungen: {
-        include: { termin: { include: { kurs: true, raum: true, trainer: true, kurstermin: true } } },
+        include: { termin: { include: { kurs: true, raum: true, trainer: true } } },
         orderBy: { buchungszeitpunkt: "desc" },
       },
     },
