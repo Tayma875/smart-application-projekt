@@ -47,7 +47,6 @@ export default async function middleware(request: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/images") ||
-    pathname === "/" ||
     pathname === "/login"
   ) {
     return NextResponse.next()

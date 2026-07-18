@@ -30,7 +30,21 @@ export function LoginForm() {
       return
     }
 
-    router.push("/")
+    // Rolle aus der Session abrufen und weiterleiten
+    try {
+      const sessionRes = await fetch("/api/auth/session")
+      const session = await sessionRes.json()
+      const rolle = session?.user?.rolle || "Admin"
+      const routes: Record<string, string> = {
+        Admin: "/",
+        Rezeption: "/rezeption/mitglieder",
+        Trainer: "/trainer/kurse",
+        Mitglied: "/mitglied/kurse",
+      }
+      router.push(routes[rolle] || "/")
+    } catch {
+      router.push("/")
+    }
     router.refresh()
   }
 
