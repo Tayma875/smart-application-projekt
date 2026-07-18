@@ -142,3 +142,50 @@ Basic erhält eingeschränkten Online-Zugang: nur On-Demand-Videos, keine Live-S
 - SMA-014: Bestätigungslogik muss 60-Minuten-Frist implementieren (aktuell keine Frist).
 - SMA-028: Basic-Online-Berechtigung in der Prüfung aktualisieren (eingeschränkt statt "kein" Zugang).
 - docs/spec.md: Letzte zwei Widersprüche als gelöst markiert.
+
+## 2026-07-18 - Route-Guard & Middleware
+
+**Kontext:** Die App hatte keinen Schutz – alle Seiten und API-Routen waren ohne Login erreichbar.
+
+### Entscheidung
+Eine Next.js-Middleware prüft rollenbasiert den Zugriff auf geschützte Routen. Die `getToken`-Funktion aus next-auth/jwt liest das verschlüsselte JWT-Cookie aus. Öffentliche Routen (`/`, `/login`, `/_next/`) bleiben frei zugänglich.
+
+- `/admin/...` → nur Admin
+- `/rezeption/...` → Rezeption oder höher
+- `/trainer/...` → Trainer oder höher
+- `/mitglied/...` → alle eingeloggten User
+- `/api/*/` → analog zu UI-Routen
+
+### Konsequenzen
+- Kein Zugriff auf geschützte Bereiche ohne Login.
+- Bei falscher Rolle 403-Fehlermeldung.
+- API-Fallback in `auth()` (Demo-Admin) entfernt.
+
+## 2026-07-18 - Passwort-Hashing
+
+**Kontext:** Passwörter lagen im Klartext in der DB und wurden per `===` verglichen.
+
+### Entscheidung
+`bcryptjs` (Zero-Dependency) für Hashing bei Speicherung (Seed, Mitgliedsanlage) und Vergleich (Login). Das Standard-Passwort für neue Mitglieder wird über `DEFAULT_MITGLIED_PASSWORD` in `.env` konfigurierbar (Fallback: `mitglied123`).
+
+### Konsequenzen
+- Bestehende Passwörter in der Dev-DB wurden durch den aktualisierten Seed ersetzt.
+- Neue Mitglieder bekommen gehashte Passwörter.
+
+## 2026-07-18 - Audit-Log für Admin-Aktionen
+
+**Kontext:** `docs/architecture.md` fordert ein Audit-Log für kritische Admin-Aktionen, es gab aber keine Implementierung.
+
+### Entscheidung
+Neue Prisma-Tabelle `AuditLog` mit `id`, `aktion`, `adminId`, `adminEmail`, `details`, `entityId`, `entityTyp` und `createdAt`. Zentrale Helper-Funktion `logAudit()` in `src/lib/audit.ts`. Eingebunden in:
+- Mitglied anlegen, bearbeiten (Statuswechsel, Tarifwechsel, Sperre aufheben)
+- Tarife erstellen/bearbeiten
+- Kurse erstellen
+- Trainer erstellen
+- Räume erstellen
+- Kurstermine erstellen
+- Online-Content erstellen
+
+### Konsequenzen
+- Kritische Admin-Aktionen sind nachvollziehbar.
+- Fehlschlagen des Audit-Logs blockiert nie die Hauptaktion (error-suppressed).

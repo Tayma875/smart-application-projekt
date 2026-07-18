@@ -1,6 +1,6 @@
 # Backlog - Smart Application Projekt
 
-_Stand: 2026-07-14_
+_Stand: 2026-07-18_
 
 Stabile Feature-IDs. Nicht umnummerieren. Geloeschte oder verworfene IDs werden nicht wiederverwendet.
 
@@ -31,10 +31,10 @@ Dieses Dokument ist kein zweites Anforderungsdokument. Anforderungen stehen auss
 | SMA-011 | Storno mit Gebührenlogik | 2 | done | spec.md | 50% bei Storno <2h, Premium-Ausnahme |
 | SMA-012 | Monatliche Buchungslimits | 2 | done | spec.md | Basic-Limit geprüft, Premium unbegrenzt |
 | SMA-013 | Warteliste | 2 | done | spec.md | Max. 5 Personen, Wartelisten-API + UI |
-| SMA-014 | Wartelisten-Nachrücken | 2 | done | spec.md | Automatisch bei Stornierung, keine Frist |
+| SMA-014 | Wartelisten-Nachrücken | 2 | done | spec.md | Nachrücken bei Stornierung mit 60-Min-Bestätigungsfrist (Entscheidung 2026-07-17) |
 | SMA-015 | Anwesenheit für Trainer | 2 | done | spec.md | Trainer haken Teilnehmer ab |
 | SMA-016 | No-Show-Warnung nach 2 Fehlzeiten | 2 | done | spec.md | Interne Admin-Warnung bei 2 No-Shows |
-| SMA-017 | No-Show-Sperre nach 3 Fehlzeiten | 2 | done | spec.md | 2 Wochen Sperre nach 3 No-Shows |
+| SMA-017 | No-Show-Sperre nach 3 Fehlzeiten | 2 | done | spec.md | 2 Wochen Sperre nach 3 No-Shows (Premium-Ausnahme 2026-07-17) |
 | SMA-018 | Manuelle Entsperrung | 2 | done | spec.md | Admin-Entsperrbutton im UI |
 | SMA-019 | Mitgliedschaft pausieren | 2 | done | spec.md | Max. 3 Monate pro Jahr, Prüfung |
 | SMA-020 | Zahlung-ausstehend-Warnung | 2 | done | spec.md | Dashboard-Banner + Benachrichtigung bei Statuswechsel |
@@ -43,7 +43,7 @@ Dieses Dokument ist kein zweites Anforderungsdokument. Anforderungen stehen auss
 | SMA-023 | Kurserinnerungen | 3 | done | spec.md | API + Dashboard-Button für 24h- und 1h-Erinnerungen |
 | SMA-024 | Auslastungswarnung bei 80 Prozent | 3 | done | spec.md | Automatische Admin-Warnung bei Buchung + Dashboard-Banner |
 | SMA-025 | Vertrags-Monitoring | 3 | done | spec.md | API prüft auslaufende/abgelaufene Verträge + Dashboard-Button |
-| SMA-026 | Geburtstagsprozess | 3 | done | spec.md | Admin-Erinnerung im Dashboard, keine automatische Nachricht. Commit folgt. |
+| SMA-026 | Geburtstagsprozess | 3 | done | spec.md | Admin-Erinnerung im Dashboard, keine automatische Nachricht. |
 | SMA-027 | Online-Content-Verwaltung | 4 | done | spec.md | CRUD + UI (Admin), Dashboard-Link |
 | SMA-028 | Tarifbasierter Online-Zugang | 4 | done | spec.md | tarifVoraussetzung-Feld + Mitglieder-Filter (Basic/Plus/Premium) |
 | SMA-029 | Advanced-Freigabe | 4 | done | spec.md | Admin-Freigabe pro Mitglied + Kategorie, Buchungsprüfung |
