@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 
+const PAGE_SIZE = 50
+
 export async function POST(req: Request) {
   const session = await auth()
 
@@ -60,7 +62,6 @@ export async function POST(req: Request) {
   })
   if (exist) {
     if (exist.teilnahmeStatus === "storniert") {
-      // Stornierte Buchung reaktivieren statt neu anzulegen
       const reaktiviert = await prisma.buchung.update({
         where: { id: exist.id },
         data: {
@@ -121,25 +122,42 @@ export async function POST(req: Request) {
   return NextResponse.json(buchung, { status: 201 })
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const session = await auth()
+  const url = new URL(req.url)
+  const page = parseInt(url.searchParams.get("page") || "1")
+  const skip = (page - 1) * PAGE_SIZE
+
   if (session.user.rolle === "Mitglied") {
     const mitglied = await prisma.mitglied.findFirst({ where: { accountId: session.user.userId } })
-    if (!mitglied) return NextResponse.json([])
-    const buchungen = await prisma.buchung.findMany({
-      where: { mitgliedId: mitglied.id },
-      include: { termin: { include: { kurs: true, raum: true } } },
-      orderBy: { buchungszeitpunkt: "desc" },
-    })
-    return NextResponse.json(buchungen)
+    if (!mitglied) return NextResponse.json({ buchungen: [], total: 0, page: 1, totalPages: 1 })
+    const [buchungen, total] = await Promise.all([
+      prisma.buchung.findMany({
+        where: { mitgliedId: mitglied.id },
+        include: { termin: { include: { kurs: true, raum: true } } },
+        orderBy: { buchungszeitpunkt: "desc" },
+      }),
+      prisma.buchung.count({ where: { mitgliedId: mitglied.id } }),
+    ])
+    return NextResponse.json({ buchungen, total, page: 1, totalPages: 1 })
   }
 
   if (session.user.rolle === "Admin" || session.user.rolle === "Rezeption") {
-    const buchungen = await prisma.buchung.findMany({
-      include: { mitglied: { select: { vorname: true, nachname: true } }, termin: { include: { kurs: true, raum: true } } },
-      orderBy: { buchungszeitpunkt: "desc" }, take: 50,
+    const [buchungen, total] = await Promise.all([
+      prisma.buchung.findMany({
+        include: { mitglied: { select: { vorname: true, nachname: true } }, termin: { include: { kurs: true, raum: true } } },
+        orderBy: { buchungszeitpunkt: "desc" },
+        skip,
+        take: PAGE_SIZE,
+      }),
+      prisma.buchung.count(),
+    ])
+    return NextResponse.json({
+      buchungen,
+      total,
+      page,
+      totalPages: Math.ceil(total / PAGE_SIZE),
     })
-    return NextResponse.json(buchungen)
   }
 
   return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })

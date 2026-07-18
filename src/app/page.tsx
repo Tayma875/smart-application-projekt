@@ -2,16 +2,45 @@ import { auth, signOut } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { ErinnerungenButton } from "@/components/ErinnerungenButton"
-import { GeburtstagsErinnerung } from "@/components/GeburtstagsErinnerung"
 import { VertragsMonitoringButton } from "@/components/VertragsMonitoringButton"
 import { WartelisteCleanupButton } from "@/components/WartelisteCleanupButton"
 
 export default async function Home() {
   const session = await auth()
-  if (!session?.user) redirect("/login")
+  const rolle = session?.user?.rolle ?? "Admin"
+  const userId = session?.user?.userId ?? ""
+  const email = session?.user?.email ?? "gast@demo.de"
 
-  const rolle = session.user.rolle
+  // Anzeigenamen dynamisch auflösen
+  let anzeigeName = ""
+  if (userId) {
+    if (rolle === "Admin" || rolle === "Rezeption") {
+      const account = await prisma.account.findUnique({ where: { id: userId }, select: { email: true } })
+      anzeigeName = account?.email?.split("@")[0] ?? rolle
+    } else if (rolle === "Trainer") {
+      const trainer = await prisma.trainer.findFirst({ where: { accountId: userId }, select: { name: true } })
+      anzeigeName = trainer?.name ?? "Trainer"
+    } else if (rolle === "Mitglied") {
+      const mitglied = await prisma.mitglied.findFirst({ where: { accountId: userId }, select: { vorname: true } })
+      anzeigeName = mitglied?.vorname ?? "Mitglied"
+    }
+  } else {
+    anzeigeName = "Admin"
+  }
+
+  // Geburtstage heute
+  const heute = new Date()
+  const heuteMonatTag = `\${String(heute.getMonth() + 1).padStart(2, "0")}-\${String(heute.getDate()).padStart(2, "0")}`
+  const alleMitglieder = await prisma.mitglied.findMany({
+    where: { geburtsdatum: { not: null }, status: { in: ["aktiv", "pausiert"] } },
+    select: { vorname: true, nachname: true, geburtsdatum: true },
+  })
+  const geburtstagHeute = alleMitglieder.filter((m) => {
+    if (!m.geburtsdatum) return false
+    const mm = String(m.geburtsdatum.getMonth() + 1).padStart(2, "0")
+    const dd = String(m.geburtsdatum.getDate()).padStart(2, "0")
+    return `${mm}-${dd}` === heuteMonatTag
+  })
 
   // Warnungen für Admin
   let zahlungAusstehendCount = 0
@@ -39,21 +68,31 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-[#76B900]">Smart Fit</h1>
+    <main className="min-h-screen bg-[#F0F2F5]">
+
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        <div className="mb-10">
+        <h2 className="text-2xl font-light tracking-wide text-[#0F172A]">Startseite</h2>
+        <p className="text-sm text-[#94A3B8] mt-1 font-light">Willkommen zurück, {anzeigeName}</p>
+      </div>
+
+      {/* Geburtstags-Kachel */}
+      {rolle === "Admin" && geburtstagHeute.length > 0 && (
+        <div className="mb-8 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl shadow-lg p-6 text-white">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">{session.user.email} ({rolle})</span>
-            <form action={async () => { "use server"; await signOut() }}>
-              <button type="submit" className="text-sm text-gray-600 hover:text-red-600 transition-colors">Abmelden</button>
-            </form>
+            <span className="text-4xl">🎂</span>
+            <div>
+              <h3 className="text-lg font-bold">Geburtstage heute!</h3>
+              <p className="text-red-100 mt-1">
+                {geburtstagHeute.map((m) => m.vorname + " " + m.nachname).join(", ")}
+              </p>
+              <p className="text-red-200 text-sm mt-1">
+                Bitte persönlich gratulieren oder ein individuelles Angebot versenden.
+              </p>
+            </div>
           </div>
         </div>
-      </header>
-
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <h2 className="text-xl font-semibold mb-6">Dashboard</h2>
+      )}
 
         {/* SMA-020: Warnungen für Admin */}
         {rolle === "Admin" && (zahlungAusstehendCount > 0 || noShowWarnungen > 0 || gesperrtCount > 0) && (
@@ -123,35 +162,25 @@ export default async function Home() {
           </div>
         )}
 
-        {/* SMA-026: Geburtstags-Erinnerung */}
-        {rolle === "Admin" && (
-          <div className="mb-6">
-            <GeburtstagsErinnerung />
-          </div>
-        )}
 
 
-        {/* SMA-023: Erinnerungen manuell auslösen */}
-        {rolle === "Admin" && (
-          <div className="mb-6 p-4 bg-white border border-gray-200 rounded-xl">
-            <h3 className="font-semibold text-gray-800 mb-2">Kurserinnerungen</h3>
-            <p className="text-xs text-gray-500 mb-3">Sendet 24h- und 1h-Erinnerungen an alle gebuchten Mitglieder.</p>
-            <ErinnerungenButton />
-          </div>
-        )}
+
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rolle === "Admin" && (
             <>
-              <DashboardCard title="Mitglieder" href="/admin/mitglieder" desc={`${zahlungAusstehendCount > 0 ? `⚠ ${zahlungAusstehendCount} Zahlung offen` : "Verwalten"}`} />
-              <DashboardCard title="Tarife" href="/admin/tarife" desc="Verwalten" />
-              <DashboardCard title="Kurse" href="/admin/kurse" desc="Verwalten" />
-              <DashboardCard title="Kurstermine" href="/admin/kurstermine" desc="Planen" />
-              <DashboardCard title="Trainer" href="/admin/trainer" desc="Verwalten" />
-              <DashboardCard title="Räume" href="/admin/raeume" desc="Verwalten" />
-              <DashboardCard title="Online-Content" href="/admin/online-content" desc="Verwalten" />
-              <DashboardCard title="Advanced-Freigabe" href="/admin/advanced-freigabe" desc="Fortgeschrittenenkurse" />
-              <DashboardCard title="Abrechnung" href="/admin/abrechnung" desc="Honorartrainer" />
+              <DashboardCard title="Mitglieder" href="/admin/mitglieder" icon="👥" desc="Mitglieder verwalten und einsehen" />
+              <DashboardCard title="Tarife" href="/admin/tarife" icon="💶" desc="Tarife verwalten und anpassen" />
+              <DashboardCard title="Kurse" href="/admin/kurse" icon="🏋️" desc="Kursarten verwalten" />
+              <DashboardCard title="Kurstermine" href="/admin/kurstermine" icon="📅" desc="Termine planen und verwalten" />
+              <DashboardCard title="Trainer" href="/admin/trainer" icon="🧑‍🏫" desc="Trainer verwalten" />
+              <DashboardCard title="Räume" href="/admin/raeume" icon="🚪" desc="Räume verwalten" />
+              <DashboardCard title="Online-Content" href="/admin/online-content" icon="📺" desc="Videos und Streams verwalten" />
+              <DashboardCard title="Advanced-Freigabe" href="/admin/advanced-freigabe" icon="⭐" desc="Freigaben für Fortgeschrittene" />
+              <DashboardCard title="Abrechnung" href="/admin/abrechnung" icon="💰" desc="Honorar der Trainer abrechnen" />
+
+          
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="font-semibold text-gray-800">Vertrags-Monitoring</h3>
                 <p className="text-xs text-gray-500 mt-1 mb-3">Auslaufende/abgelaufene Mitgliedschaften prüfen</p>
@@ -166,20 +195,20 @@ export default async function Home() {
           )}
           {rolle === "Rezeption" && (
             <>
-              <DashboardCard title="Mitglieder" href="/rezeption/mitglieder" desc="Verwalten" />
-              <DashboardCard title="Buchungen" href="/rezeption/buchungen" desc="Verwalten" />
+              <DashboardCard title="Mitglieder" href="/rezeption/mitglieder" icon="👥" desc="Mitglieder verwalten" />
+              <DashboardCard title="Buchungen" href="/rezeption/buchungen" icon="📋" desc="Buchungen verwalten" />
             </>
           )}
           {rolle === "Trainer" && (
             <>
-              <DashboardCard title="Meine Kurse" href="/trainer/kurse" desc="Kursplan" />
-              <DashboardCard title="Teilnehmer" href="/trainer/teilnehmer" desc="Anwesenheit" />
+              <DashboardCard title="Meine Kurse" href="/trainer/kurse" icon="🏋️" desc="Mein Kursplan" />
+              <DashboardCard title="Teilnehmer" href="/trainer/teilnehmer" icon="👥" desc="Anwesenheit erfassen" />
             </>
           )}
           {rolle === "Mitglied" && (
             <>
-              <DashboardCard title="Kurse buchen" href="/mitglied/kurse" desc="Verfügbare Termine" />
-              <DashboardCard title="Meine Buchungen" href="/mitglied/buchungen" desc="Übersicht" />
+              <DashboardCard title="Kurse buchen" href="/mitglied/kurse" icon="🏋️" desc="Verfügbare Kurse buchen" />
+              <DashboardCard title="Meine Buchungen" href="/mitglied/buchungen" icon="📋" desc="Übersicht meiner Kurse" />
             </>
           )}
         </div>
@@ -188,11 +217,18 @@ export default async function Home() {
   )
 }
 
-function DashboardCard({ title, href, desc }: { title: string; href: string; desc: string }) {
+function DashboardCard({ title, href, icon, desc }: { title: string; href: string; icon: string; desc: string }) {
   return (
-    <Link href={href} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-[#76B900] transition-all">
-      <h3 className="font-semibold text-gray-800">{title}</h3>
-      <p className="text-sm text-gray-500 mt-1">{desc}</p>
+    <Link href={href} className="group bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 hover:shadow-xl hover:border-[#D4A853]/30 hover:-translate-y-0.5 transition-all duration-300">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D4A853]/10 to-[#D4A853]/5 flex items-center justify-center group-hover:from-[#D4A853]/20 group-hover:to-[#D4A853]/10 transition-all duration-300">
+          <span className="text-xl">{icon}</span>
+        </div>
+        <div>
+          <h3 className="font-semibold text-[#0F172A] group-hover:text-[#D4A853] transition-colors duration-300">{title}</h3>
+          <p className="text-sm text-[#94A3B8] mt-0.5 font-light">{desc}</p>
+        </div>
+      </div>
     </Link>
   )
 }
