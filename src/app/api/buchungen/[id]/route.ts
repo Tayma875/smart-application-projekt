@@ -4,7 +4,6 @@ import { NextResponse } from "next/server"
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
 
   const buchung = await prisma.buchung.findUnique({
     where: { id: params.id },
@@ -27,9 +26,13 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       include: { termin: { include: { kurs: true } }, mitglied: { select: { vorname: true, nachname: true } } },
     })
 
-    // No-Show-Zähler aktualisieren
+    // No-Show-Zähler: aufeinanderfolgende unentschuldigte Fehlzeiten
+    // Bei Teilnahme → Reset; bei No-Show → inkrementieren
     const mitglied = await prisma.mitglied.findUnique({ where: { id: buchung.mitgliedId } })
     if (mitglied) {
+      const tarifName = buchung.mitglied.tarif.name || "Basic"
+      const istPremium = tarifName === "Premium"
+
       if (newStatus === "no_show") {
         const neuerZaehler = (mitglied.noShowZaehler || 0) + 1
         await prisma.mitglied.update({
@@ -37,12 +40,12 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
           data: { noShowZaehler: neuerZaehler },
         })
 
-        // SMA-016: Warnung nach 2 No-Shows
+        // SMA-016: Warnung nach 2 No-Shows (Premium- Hinweis)
         if (neuerZaehler === 2) {
           await prisma.benachrichtigung.create({
             data: {
               typ: "warnung",
-              titel: "No-Show-Warnung",
+              titel: istPremium ? "No-Show-Warnung (Premium)" : "No-Show-Warnung",
               inhalt: `${mitglied.vorname} ${mitglied.nachname} hat zweimal hintereinander unentschuldigt gefehlt.`,
               empfaengerRolle: "Admin",
               mitgliedId: mitglied.id,
@@ -50,23 +53,43 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
           })
         }
 
-        // SMA-017: Sperre nach 3 No-Shows
+        // SMA-017: Entscheidung 2026-07-17 – Premium-Ausnahme
         if (neuerZaehler >= 3) {
-          const gesperrtBis = new Date()
-          gesperrtBis.setDate(gesperrtBis.getDate() + 14)
-          await prisma.mitglied.update({
-            where: { id: buchung.mitgliedId },
-            data: { gesperrtBis },
-          })
-          await prisma.benachrichtigung.create({
-            data: {
-              typ: "warnung",
-              titel: "No-Show-Sperre",
-              inhalt: `${mitglied.vorname} ${mitglied.nachname} wurde für 2 Wochen für Live-Buchungen gesperrt.`,
-              empfaengerRolle: "Admin",
-              mitgliedId: mitglied.id,
-            },
-          })
+          if (istPremium) {
+            // Premium: KEINE automatische Sperre, nur Benachrichtigung
+            await prisma.benachrichtigung.create({
+              data: {
+                typ: "warnung",
+                titel: "No-Show (Premium) – Bitte prüfen",
+                inhalt: `${mitglied.vorname} ${mitglied.nachname} (Premium) hat dreimal hintereinander unentschuldigt gefehlt. Keine automatische Sperre – bitte individuell entscheiden.`,
+                empfaengerRolle: "Admin",
+                mitgliedId: mitglied.id,
+              },
+            })
+            // Zähler zurücksetzen, damit die Warnung nicht erneut feuert
+            // Admin kann bei Bedarf manuell sperren (SMA-018)
+            await prisma.mitglied.update({
+              where: { id: buchung.mitgliedId },
+              data: { noShowZaehler: 0 },
+            })
+          } else {
+            // Basic/Plus: automatische 14-Tage-Sperre
+            const gesperrtBis = new Date()
+            gesperrtBis.setDate(gesperrtBis.getDate() + 14)
+            await prisma.mitglied.update({
+              where: { id: buchung.mitgliedId },
+              data: { gesperrtBis, noShowZaehler: 0 },
+            })
+            await prisma.benachrichtigung.create({
+              data: {
+                typ: "warnung",
+                titel: "No-Show-Sperre",
+                inhalt: `${mitglied.vorname} ${mitglied.nachname} wurde für 2 Wochen für Live-Buchungen gesperrt.`,
+                empfaengerRolle: "Admin",
+                mitgliedId: mitglied.id,
+              },
+            })
+          }
         }
       } else if (newStatus === "teilgenommen") {
         // Bei Teilnahme: No-Show-Zähler zurücksetzen

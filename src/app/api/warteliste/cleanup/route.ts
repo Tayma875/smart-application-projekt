@@ -1,14 +1,9 @@
 import { prisma } from "@/lib/prisma"
-import { auth, hatBerechtigung } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 
 export async function POST() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
-
-  // Abgelaufene Bestätigungsfristen finden
+  // Abgelaufene Bestätigungsfristen finden – nur den ersten Eintrag pro Termin
   const abgelaufen = await prisma.wartelistenEintrag.findMany({
     where: {
       bestaetigtBis: { not: null, lt: new Date() },
@@ -20,18 +15,21 @@ export async function POST() {
     orderBy: [{ terminId: "asc" }, { reihenfolge: "asc" }],
   })
 
-  let freigegeben = 0
-  const behandelteTermine = new Set<string>()
-
+  // Nur den ersten abgelaufenen Eintrag pro Termin verarbeiten
+  const ersteProTermin = new Map<string, typeof abgelaufen[0]>()
   for (const eintrag of abgelaufen) {
-    // Prüfen ob für diesen Termin schon jemand nachgerückt ist
-    if (behandelteTermine.has(eintrag.terminId)) continue
-    behandelteTermine.add(eintrag.terminId)
+    if (!ersteProTermin.has(eintrag.terminId)) {
+      ersteProTermin.set(eintrag.terminId, eintrag)
+    }
+  }
 
+  let freigegeben = 0
+
+  for (const [, eintrag] of ersteProTermin) {
     await prisma.wartelistenEintrag.delete({ where: { id: eintrag.id } })
     freigegeben++
 
-    // Benachrichtigung an Mitglied
+    // Benachrichtigung an das Mitglied mit der abgelaufenen Frist
     await prisma.benachrichtigung.create({
       data: {
         typ: "info",
@@ -41,7 +39,7 @@ export async function POST() {
       },
     })
 
-    // Nächsten auf der Warteliste benachrichtigen
+    // Nächsten auf der Warteliste benachrichtigen (wenn Platz frei)
     const naechster = await prisma.wartelistenEintrag.findFirst({
       where: { terminId: eintrag.terminId, bestaetigtBis: null },
       orderBy: { reihenfolge: "asc" },
@@ -55,7 +53,7 @@ export async function POST() {
         const bestaetigtBis = new Date(Date.now() + 60 * 60 * 1000)
         await prisma.wartelistenEintrag.update({
           where: { id: naechster.id },
-          data: { bestaetigtBis, reihenfolge: 1 },
+          data: { bestaetigtBis },
         })
         const mitglied = await prisma.mitglied.findUnique({ where: { id: naechster.mitgliedId } })
         if (mitglied) {
@@ -87,6 +85,6 @@ export async function POST() {
   return NextResponse.json({
     success: true,
     abgelaufenEntfernt: freigegeben,
-    termineBetroffen: behandelteTermine.size,
+    termineBetroffen: ersteProTermin.size,
   })
 }

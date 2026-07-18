@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-interface Kurs { id: string; name: string; dauer: number }
+interface Kurs { id: string; name: string; dauer: number; maxTeilnehmer: number }
 interface Count { buchungen: number }
 interface Termin { id: string; kurs: Kurs; raum: { name: string; kapazitaet: number }; trainer: { name: string }; datum: string; uhrzeit: string; status: string; _count: Count }
 
@@ -10,6 +10,7 @@ export function KursBuchen({ termine, mitgliedId, gebuchteIds }: { termine: Term
   const [loading, setLoading] = useState<string | null>(null)
   const [gebucht, setGebucht] = useState(new Set(gebuchteIds))
   const [warteliste, setWarteliste] = useState<Set<string>>(new Set())
+  const [wartelistePositionen, setWartelistePositionen] = useState<Record<string, number>>({})
 
   async function buchen(terminId: string) {
     setLoading(terminId)
@@ -30,9 +31,23 @@ export function KursBuchen({ termine, mitgliedId, gebuchteIds }: { termine: Term
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mitgliedId, terminId }),
     })
-    if (res.ok) { setWarteliste(new Set([...warteliste, terminId])); setMsg("Auf Warteliste ✓") }
+    if (res.ok) {
+      const data = await res.json()
+      setWarteliste(new Set([...warteliste, terminId]))
+      setWartelistePositionen({ ...wartelistePositionen, [terminId]: data.reihenfolge })
+      setMsg("Auf Warteliste ✓")
+    }
     else { const e = await res.json(); setMsg(e.error || "Fehler") }
     setLoading(null); setTimeout(() => setMsg(""), 3000)
+  }
+
+  function getKapazitaet(t: Termin): number {
+    return Math.min(t.kurs.maxTeilnehmer, t.raum.kapazitaet)
+  }
+
+  function getWartelistenPosition(t: Termin): number {
+    // Position = aktuelle Buchungen - Kapazität + 1 (korrigiert: wer zuerst auf der Liste ist)
+    return Math.max(1, t._count.buchungen - getKapazitaet(t) + 1)
   }
 
   return (
@@ -42,11 +57,12 @@ export function KursBuchen({ termine, mitgliedId, gebuchteIds }: { termine: Term
         {termine.map(t => {
           const isGebucht = gebucht.has(t.id)
           const aufWarte = warteliste.has(t.id)
-          const kapazitaet = Math.min(t.raum.kapazitaet, 999) // wir nutzen Raumkapazität
+          const kapazitaet = getKapazitaet(t)
           const istVoll = t._count.buchungen >= kapazitaet
           const terminDatetime = new Date(`${t.datum.split("T")[0]}T${t.uhrzeit}`)
           const zweiStundenVorher = new Date(terminDatetime.getTime() - 2 * 60 * 60 * 1000)
           const kannBuchen = !isGebucht && !aufWarte && !istVoll && new Date() < zweiStundenVorher
+          const wartePos = wartelistePositionen[t.id] || getWartelistenPosition(t)
 
           return (
             <div key={t.id} className={`bg-white border rounded-xl p-5 ${
@@ -63,7 +79,7 @@ export function KursBuchen({ termine, mitgliedId, gebuchteIds }: { termine: Term
                   </div>
                   <p className="text-sm text-gray-500">{new Date(t.datum).toLocaleDateString("de-DE")} um {t.uhrzeit}</p>
                   <p className="text-xs text-gray-400">{t.trainer.name} · {t.raum.name} ({t._count.buchungen}/{kapazitaet} Plätze)</p>
-                  {aufWarte && <p className="text-xs text-yellow-600 mt-1">Auf Warteliste (Position: {t._count.buchungen - kapazitaet + 1})</p>}
+                  {aufWarte && <p className="text-xs text-yellow-600 mt-1">Auf Warteliste (Position: {wartePos})</p>}
                 </div>
                 <div className="flex gap-2">
                   {isGebucht ? (

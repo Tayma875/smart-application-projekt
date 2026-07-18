@@ -4,17 +4,21 @@ import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
   const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
 
   const data = await req.json()
   const { mitgliedId, terminId } = data
 
-  // Mitglied + Sperre prüfen
+  // Mitglied + Status + Sperre prüfen
   const mitglied = await prisma.mitglied.findUnique({
     where: { id: mitgliedId },
     include: { tarif: true },
   })
   if (!mitglied) return NextResponse.json({ error: "Mitglied nicht gefunden" }, { status: 404 })
+
+  // Nur aktive Mitglieder dürfen buchen
+  if (mitglied.status !== "aktiv") {
+    return NextResponse.json({ error: `Buchung nicht möglich – Mitgliedsstatus: ${mitglied.status}` }, { status: 403 })
+  }
 
   // SMA-017/018: Sperre prüfen
   if (mitglied.gesperrtBis && new Date() < mitglied.gesperrtBis) {
@@ -50,14 +54,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Kurs ausgebucht" }, { status: 400 })
   }
 
+  // Existierende Buchung prüfen: stornierte Buchungen reaktivieren
   const exist = await prisma.buchung.findUnique({
     where: { mitgliedId_terminId: { mitgliedId, terminId } },
   })
-  if (exist && exist.teilnahmeStatus !== "storniert") {
+  if (exist) {
+    if (exist.teilnahmeStatus === "storniert") {
+      // Stornierte Buchung reaktivieren statt neu anzulegen
+      const reaktiviert = await prisma.buchung.update({
+        where: { id: exist.id },
+        data: {
+          teilnahmeStatus: "angemeldet",
+          buchungszeitpunkt: new Date(),
+          stornozeitpunkt: null,
+          gebuehr: false,
+        },
+        include: { termin: { include: { kurs: true } } },
+      })
+      return NextResponse.json(reaktiviert, { status: 200 })
+    }
     return NextResponse.json({ error: "Bereits gebucht" }, { status: 400 })
   }
 
-  // Monatliches Buchungslimit
+  // Monatliches Buchungslimit – zählt nicht-stornierte Buchungen im aktuellen Monat
   if (mitglied.tarif.buchungslimit) {
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -104,8 +123,6 @@ export async function POST(req: Request) {
 
 export async function GET() {
   const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
-
   if (session.user.rolle === "Mitglied") {
     const mitglied = await prisma.mitglied.findFirst({ where: { accountId: session.user.userId } })
     if (!mitglied) return NextResponse.json([])

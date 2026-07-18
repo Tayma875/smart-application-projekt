@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
   const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
+
   if (session.user.rolle !== "Mitglied") {
     return NextResponse.json({ error: "Nur Mitglieder können sich auf Warteliste setzen" }, { status: 403 })
   }
@@ -12,7 +12,10 @@ export async function POST(req: Request) {
   const data = await req.json()
   const { mitgliedId, terminId } = data
 
-  const termin = await prisma.kurstermin.findUnique({ where: { id: terminId } })
+  const termin = await prisma.kurstermin.findUnique({
+    where: { id: terminId },
+    include: { kurs: true, raum: true },
+  })
   if (!termin) return NextResponse.json({ error: "Termin nicht gefunden" }, { status: 404 })
 
   // Prüfen ob bereits auf Warteliste
@@ -36,12 +39,15 @@ export async function POST(req: Request) {
     },
     include: { termin: { include: { kurs: true } } },
   })
-  return NextResponse.json(eintrag, { status: 201 })
+
+  // Reihenfolge explizit zurückschicken
+  return NextResponse.json({
+    ...eintrag,
+    reihenfolge: eintrag.reihenfolge,
+  }, { status: 201 })
 }
 
 export async function DELETE(req: Request) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
 
   const data = await req.json()
   const { mitgliedId, terminId } = data
@@ -49,13 +55,24 @@ export async function DELETE(req: Request) {
   await prisma.wartelistenEintrag.deleteMany({
     where: { mitgliedId, terminId },
   })
+
+  // Plätze neu nummerieren
+  const rest = await prisma.wartelistenEintrag.findMany({
+    where: { terminId },
+    orderBy: { reihenfolge: "asc" },
+  })
+  for (let i = 0; i < rest.length; i++) {
+    await prisma.wartelistenEintrag.update({
+      where: { id: rest[i].id },
+      data: { reihenfolge: i + 1 },
+    })
+  }
+
   return NextResponse.json({ success: true })
 }
 
 // Warteliste abrufen (Admin/Rezeption)
 export async function GET(req: Request) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
 
   const url = new URL(req.url)
   const terminId = url.searchParams.get("terminId")

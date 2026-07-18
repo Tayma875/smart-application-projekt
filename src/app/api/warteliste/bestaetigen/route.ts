@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
   const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 })
+
   if (session.user.rolle !== "Mitglied") {
     return NextResponse.json({ error: "Nur Mitglieder können bestätigen" }, { status: 403 })
   }
