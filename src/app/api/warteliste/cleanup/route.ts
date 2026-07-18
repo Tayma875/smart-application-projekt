@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { sendWartelisteBenachrichtigung } from "@/lib/mail"
 import { NextResponse } from "next/server"
 
 export async function POST() {
@@ -65,6 +66,16 @@ export async function POST() {
               mitgliedId: mitglied.id,
             },
           })
+
+          if (mitglied.email) {
+            await sendWartelisteBenachrichtigung(
+              mitglied.email,
+              mitglied.vorname,
+              eintrag.termin.kurs.name,
+              new Date(eintrag.termin.datum).toLocaleDateString("de-DE"),
+              eintrag.termin.uhrzeit
+            )
+          }
         }
       }
     }

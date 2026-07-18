@@ -1,16 +1,11 @@
 import { prisma } from "@/lib/prisma"
-import { auth, hatBerechtigung } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import { sendKursErinnerung } from "@/lib/mail"
 
 export async function POST() {
-  const session = await auth()
-  if (!session?.user || !hatBerechtigung(session.user.rolle, "Admin")) {
-    return NextResponse.json({ error: "Nicht berechtigt" }, { status: 403 })
-  }
-
   const jetzt = new Date()
   const in24h = new Date(jetzt.getTime() + 24 * 60 * 60 * 1000)
-  const in1h = new Date(jetzt.getTime() + 1 * 60 * 60 * 1000)
 
   const termine = await prisma.kurstermin.findMany({
     where: {
@@ -33,16 +28,18 @@ export async function POST() {
 
   let gesendet24h = 0
   let gesendet1h = 0
+  let mailsGesendet = 0
 
   for (const termin of termine) {
     const terminStart = new Date(`${termin.datum.toISOString().split("T")[0]}T${termin.uhrzeit}`)
     const diffMs = terminStart.getTime() - jetzt.getTime()
     const diffMin = diffMs / (1000 * 60)
 
+    const datumStr = new Date(termin.datum).toLocaleDateString("de-DE")
+
     // Erinnerung 24h vorher (zwischen 23h und 25h vorher)
     if (diffMin >= 23 * 60 && diffMin <= 25 * 60) {
       for (const buchung of termin.buchungen) {
-        // Prüfen ob bereits eine 24h-Erinnerung für diesen Termin existiert
         const existiert = await prisma.benachrichtigung.findFirst({
           where: {
             mitgliedId: buchung.mitgliedId,
@@ -63,6 +60,19 @@ export async function POST() {
           },
         })
         gesendet24h++
+
+        // E-Mail senden, wenn Mitglied eine E-Mail hat
+        if (buchung.mitglied.email) {
+          const result = await sendKursErinnerung(
+            buchung.mitglied.email,
+            buchung.mitglied.vorname,
+            termin.kurs.name,
+            datumStr,
+            termin.uhrzeit,
+            termin.raum.name
+          )
+          if (result.messageId) mailsGesendet++
+        }
       }
     }
 
@@ -89,6 +99,18 @@ export async function POST() {
           },
         })
         gesendet1h++
+
+        if (buchung.mitglied.email) {
+          const result = await sendKursErinnerung(
+            buchung.mitglied.email,
+            buchung.mitglied.vorname,
+            termin.kurs.name,
+            datumStr,
+            termin.uhrzeit,
+            termin.raum.name
+          )
+          if (result.messageId) mailsGesendet++
+        }
       }
     }
   }
@@ -97,5 +119,6 @@ export async function POST() {
     success: true,
     erinnerungen24h: gesendet24h,
     erinnerungen1h: gesendet1h,
+    mailsGesendet,
   })
 }

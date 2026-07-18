@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { sendStornoBenachrichtigung } from "@/lib/mail"
 import { NextResponse } from "next/server"
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
@@ -58,6 +59,17 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
             mitgliedId: buchung.mitgliedId,
           },
         })
+
+        // E-Mail an Mitglied
+        if (buchung.mitglied.email) {
+          await sendStornoBenachrichtigung(
+            buchung.mitglied.email,
+            buchung.mitglied.vorname,
+            aktuellerTermin.kurs.name,
+            new Date(aktuellerTermin.datum).toLocaleDateString("de-DE"),
+            aktuellerTermin.uhrzeit
+          )
+        }
       }
 
       // Benachrichtigung an Warteliste

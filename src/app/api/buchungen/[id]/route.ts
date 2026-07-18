@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { sendWartelisteBenachrichtigung } from "@/lib/mail"
 import { NextResponse } from "next/server"
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
@@ -164,6 +165,16 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
               mitgliedId: mitglied.id,
             },
           })
+
+          if (mitglied.email) {
+            await sendWartelisteBenachrichtigung(
+              mitglied.email,
+              mitglied.vorname,
+              termin.kurs.name,
+              new Date(termin.datum).toLocaleDateString("de-DE"),
+              termin.uhrzeit
+            )
+          }
         }
       }
     }
