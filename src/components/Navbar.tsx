@@ -25,7 +25,6 @@ const adminNavItems: NavItem[] = [
 const rezeptionNavItems: NavItem[] = [
   { title: "Mitglieder", href: "/rezeption/mitglieder", icon: "👥" },
   { title: "Buchungen", href: "/rezeption/buchungen", icon: "📋" },
-  { title: "Check-in", href: "/rezeption/checkin", icon: "✅" },
 ]
 
 const trainerNavItems: NavItem[] = [
@@ -36,7 +35,6 @@ const trainerNavItems: NavItem[] = [
 const mitgliedNavItems: NavItem[] = [
   { title: "Kurse buchen", href: "/mitglied/kurse", icon: "🏋️" },
   { title: "Meine Buchungen", href: "/mitglied/buchungen", icon: "📋" },
-  { title: "Check-in", href: "/mitglied/checkin", icon: "✅" },
 ]
 
 export default async function Navbar() {
