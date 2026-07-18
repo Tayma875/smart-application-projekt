@@ -24,7 +24,7 @@ export default function ProfilDropdown({ email, rolle, vorname, nachname }: Prof
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const anzeigeName = vorname && nachname ? vorname : "Lisa"
+  const anzeigeName = vorname || "Profil"
 
   return (
     <div className="relative" ref={ref}>
@@ -42,10 +42,12 @@ export default function ProfilDropdown({ email, rolle, vorname, nachname }: Prof
         <div className="absolute right-0 top-full mt-3 w-64 bg-white border border-[#E2E8F0] rounded-2xl shadow-xl z-50 p-5">
           <div className="flex items-center gap-4 mb-5 pb-4 border-b border-[#F1F5F9]">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8943F] flex items-center justify-center">
-              <span className="text-lg font-bold text-white">{vorname ? vorname[0] : "L"}{nachname ? nachname[0] : ""}</span>
+              <span className="text-lg font-bold text-white">{vorname ? vorname[0] : "P"}{nachname ? nachname[0] : ""}</span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#0F172A]">{vorname && nachname ? `${vorname} ${nachname}` : "Lisa"}</p>
+              <p className="text-sm font-semibold text-[#0F172A]">
+                {vorname && nachname ? `${vorname} ${nachname}` : vorname || "Profil"}
+              </p>
               <p className="text-xs text-[#94A3B8]">{email}</p>
             </div>
           </div>
