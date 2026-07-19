@@ -48,7 +48,7 @@ n:m Beziehungen
 - Kurse der Level „Anfänger“ und „Mittel“ bleiben für alle aktiven Mitglieder ohne Einschränkung frei buchbar. Ein Mitglied kann einen Kurs des Levels „Fortgeschritten“ (Advanced) erst buchen, nachdem die Inhaberin (Admin) eine **manuelle Freigabe pro Mitglied und Kurs-Kategorie** (z. B. Yoga, Spinning) erteilt hat. Das System bietet der Inhaberin bei der Freigabeprüfung einen **automatisierten Hinweis**, ob das Mitglied bereits Mittel-Kurse in der jeweiligen Kategorie besucht hat, ersetzt aber nicht die finale manuelle Entscheidung.
 - Das System versendet automatisch Kurserinnerungen (per Push oder E-Mail) in zwei Stufen: **24 Stunden** sowie **eine Stunde** vor Kursbeginn.
 - Sobald ein Kurs eine Auslastung von **80 %** erreicht, erhält die Inhaberin eine Benachrichtigung, um proaktiv über Zusatztermine entscheiden zu können.
-- Das System informiert die Inhaberin, wenn ein Mitglied **zweimal hintereinander** 
+- Das System informiert die Inhaberin, wenn ein Mitglied **zweimal hintereinander** nicht zu Kursen gekommen ist
 - **Vertrags-Monitoring:** Die Inhaberin erhält automatische Erinnerungen über **auslaufende oder bereits abgelaufene Mitgliedschaften**.
 
 
