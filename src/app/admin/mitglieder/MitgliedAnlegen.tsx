@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 
-interface Tarif { id: string; name: string; monatspreis: number }
-interface Mitglied { id: string; vorname: string; nachname: string; email: string; telefon: string | null; status: string; zahlungsstatus: string; tarif: Tarif; geburtsdatum: string | null; noShowZaehler: number }
+interface Tarif { id: string; name: string; monatspreis: number; laufzeit?: string }
+interface Mitglied { id: string; vorname: string; nachname: string; email: string; telefon: string | null; status: string; zahlungsstatus: string; tarif: Tarif; geburtsdatum: string | null; noShowZaehler: number; startdatum: string }
 
 export function MitgliedAnlegen({ tarife, onClose, onCreated }: { tarife: Tarif[]; onClose: () => void; onCreated: (m: Mitglied) => void }) {
   const [loading, setLoading] = useState(false)

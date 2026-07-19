@@ -12,7 +12,7 @@ interface Mitglied {
   telefon: string | null
   status: string
   zahlungsstatus: string
-  tarif: { id: string; name: string; monatspreis: number; laufzeit: string }
+  tarif: { id: string; name: string; monatspreis: number; laufzeit?: string }
   startdatum: string
   geburtsdatum: string | null
   noShowZaehler: number
@@ -179,7 +179,7 @@ export function MitgliederListe({ mitglieder, tarife, vertragFilter, vertragAbge
 
       {showAnlegen && (
         <MitgliedAnlegen
-          tarife={tarife}
+          tarife={tarife as any[]}
           onClose={() => setShowAnlegen(false)}
           onCreated={(m) => setList([...list, m])}
         />
@@ -188,9 +188,9 @@ export function MitgliederListe({ mitglieder, tarife, vertragFilter, vertragAbge
       {bearbeite && (
         <MitgliedBearbeiten
           mitglied={bearbeite}
-          tarife={tarife}
+          tarife={tarife as any[]}
           onClose={() => setBearbeite(null)}
-          onUpdated={(m) => setList(list.map((x) => (x.id === m.id ? m : x)))}
+          onUpdated={(m: any) => setList(list.map((x) => (x.id === m.id ? m : x)))}
         />
       )}
 
@@ -210,7 +210,7 @@ export function MitgliederListe({ mitglieder, tarife, vertragFilter, vertragAbge
           </thead>
           <tbody>
             {gefiltert.map((m) => {
-              const { startStr, endStr } = vertragBerechnen(m.startdatum, m.tarif.laufzeit, m.status)
+              const { startStr, endStr } = vertragBerechnen(m.startdatum, m.tarif.laufzeit || "", m.status)
               return (
                 <>
                   <tr key={m.id} className={`border-b hover:bg-gray-50 ${abgelaufenSet.has(m.id) ? "bg-red-50" : auslaufendSet.has(m.id) ? "bg-amber-50" : ""} ${detailsOffen === m.id ? "border-b-0" : ""}`}>

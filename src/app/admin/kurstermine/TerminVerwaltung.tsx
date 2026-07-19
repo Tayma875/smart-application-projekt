@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 
-interface Kurs { id: string; name: string }
+interface Kurs { id: string; name: string; kategorie: string }
 interface Raum { id: string; name: string; kapazitaet: number }
 interface Trainer { id: string; name: string }
 interface Count { buchungen: number }
