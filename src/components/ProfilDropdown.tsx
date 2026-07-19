@@ -60,7 +60,7 @@ export default function ProfilDropdown({ email, rolle, vorname, nachname }: Prof
           </div>
 
           <button
-            onClick={() => signOut()}
+            onClick={async () => { await signOut({ redirect: false }); window.location.href = "/login" }}
             className="w-full text-center py-2.5 text-sm font-medium text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-colors duration-200"
           >
             Abmelden

@@ -36,7 +36,7 @@ n:m Beziehungen
 - Die Warteliste ist auf maximal 5 Personen pro Kurs begrenzt.
 - Das System informiert die Inhaberin, wenn ein Mitglied **zweimal hintereinander** unentschuldigt fehlt. Dies dient als Frühwarnsystem, bevor die automatische Sperre nach dem dritten Mal greift. Wer dreimal hintereinander unentschuldigt fehlt, wird für zwei Wochen für Live-Buchungen gesperrt. Aber das Admin soll  auch die Möglichkeit haben die Sperre manuell aufzuheben falls es einen guten Grund gibt — wenn jemand zum Beispiel nachweislich krank war oder ein Notfall da war.
 - Mitgliedschaften können für maximal drei Monate pro Jahr pausiert werden.
-- Mitglieder mit dem Status „Zahlung ausstehend“ erhalten eine Warnung im System, werden aber nicht automatisch gesperrt; die Entscheidung liegt bei der Inhaberin.
+
 - Trainer Sehen nur ihren eigenen Kursplan und Teilnehmerlisten; sie können Anwesenheiten abhaken, aber keine Buchungen ändern
 - **Inhaberin (Admin):** Voller Zugriff auf alle Daten, Tarife und Finanzen.
 - **Rezeption (Teilzeit):** Kann Mitglieder anlegen und Buchungen verwalten, aber keine Tarife ändern oder Kurse löschen.

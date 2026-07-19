@@ -36,6 +36,15 @@ export async function GET() {
         vertragEnde: vertragEnde.toISOString().split("T")[0],
         status: m.status,
       })
+    } else if (m.status === "gekuendigt") {
+      auslaufend.push({
+        id: m.id,
+        name: `${m.vorname} ${m.nachname}`,
+        email: m.email,
+        tarif: m.tarif.name,
+        vertragEnde: vertragEnde.toISOString().split("T")[0],
+        diffTage: Math.round(diffTage),
+      })
     } else if (diffTage <= 30 && diffTage > 0) {
       auslaufend.push({
         id: m.id,

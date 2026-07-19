@@ -19,6 +19,16 @@ const STATUS_FARBEN: Record<string, string> = {
   stattgefunden: "bg-gray-50 border-gray-200 text-gray-500",
 }
 
+const KURS_FARBEN: Record<string, string> = {
+  "Yoga": "bg-emerald-100 border-emerald-300 text-emerald-800",
+  "HIIT": "bg-red-100 border-red-300 text-red-800",
+  "Spinning": "bg-blue-100 border-blue-300 text-blue-800",
+  "Kraft": "bg-purple-100 border-purple-300 text-purple-800",
+  "Pilates": "bg-pink-100 border-pink-300 text-pink-800",
+  "Zumba": "bg-orange-100 border-orange-300 text-orange-800",
+  "Functional Training": "bg-cyan-100 border-cyan-300 text-cyan-800",
+}
+
 const STATUS_ICONS: Record<string, string> = {
   findet_statt: "✅",
   vertretung: "🔄",
@@ -151,7 +161,7 @@ export function TrainerKalender({ termine }: { termine: Termin[] }) {
                         <Link
                           href={`/trainer/teilnehmer?terminId=${terminInDieserStunde.id}`}
                           className={`block text-xs p-2 rounded-lg border ${
-                            STATUS_FARBEN[terminInDieserStunde.status] || "bg-blue-50 border-blue-200"
+                            KURS_FARBEN[terminInDieserStunde.kurs.kategorie] || "bg-blue-50 border-blue-200"
                           } hover:shadow-md transition-shadow h-full`}
                         >
                           <div className="font-semibold">{terminInDieserStunde.kurs.name}</div>
@@ -189,7 +199,7 @@ export function TrainerKalender({ termine }: { termine: Termin[] }) {
                     key={t.id}
                     href={`/trainer/teilnehmer?terminId=${t.id}`}
                     className={`block p-3 rounded-xl border ${
-                      STATUS_FARBEN[t.status] || "bg-white border-gray-200"
+                      KURS_FARBEN[t.kurs.kategorie] || "bg-white border-gray-200"
                     } hover:shadow-md transition-shadow`}
                   >
                     <div className="flex items-center justify-between">

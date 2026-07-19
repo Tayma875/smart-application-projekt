@@ -8,7 +8,73 @@ interface Trainer { id: string; name: string }
 interface Count { buchungen: number }
 interface Termin { id: string; kurs: Kurs; raum: Raum; trainer: Trainer; datum: string; uhrzeit: string; status: string; _count: Count }
 
-export function TerminVerwaltung({ termine: initial, kurse, raeume, trainer }: { termine: Termin[]; kurse: Kurs[]; raeume: Raum[]; trainer: Trainer[] }) {
+const KURS_FARBEN: Record<string, string> = {
+  "Yoga": "bg-emerald-100 border-emerald-300 text-emerald-800",
+  "HIIT": "bg-red-100 border-red-300 text-red-800",
+  "Spinning": "bg-blue-100 border-blue-300 text-blue-800",
+  "Kraft": "bg-purple-100 border-purple-300 text-purple-800",
+  "Pilates": "bg-pink-100 border-pink-300 text-pink-800",
+  "Zumba": "bg-orange-100 border-orange-300 text-orange-800",
+  "Functional Training": "bg-cyan-100 border-cyan-300 text-cyan-800",
+}
+
+function KalenderAnsicht({ termine }: { termine: Termin[] }) {
+  const heute = new Date()
+  const wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+  const wochenStart = new Date(heute)
+  wochenStart.setHours(0, 0, 0, 0)
+  const tag = wochenStart.getDay()
+  wochenStart.setDate(wochenStart.getDate() - ((tag + 6) % 7))
+
+  const tage = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(wochenStart)
+    d.setDate(d.getDate() + i)
+    return d
+  })
+
+  function termineFuerTag(d: Date) {
+    const datumStr = d.toISOString().split("T")[0]
+    return termine
+      .filter(t => {
+        const tDatum = new Date(t.datum).toISOString().split("T")[0]
+        return tDatum === datumStr && t.status !== "abgesagt"
+      })
+      .sort((a, b) => a.uhrzeit.localeCompare(b.uhrzeit))
+  }
+
+  return (
+    <div className="grid grid-cols-7 gap-2 mb-8">
+      {tage.map((d, i) => {
+        const heuteStr = new Date().toISOString().split("T")[0]
+        const dStr = d.toISOString().split("T")[0]
+        const istHeute = dStr === heuteStr
+        const istWochenende = i >= 5
+        return (
+          <div key={i} className={`rounded-xl border ${istHeute ? "border-[#D4A853] ring-2 ring-[#D4A853]/20" : "border-gray-200"} bg-white`}>
+            <div className={`text-center py-2 px-1 ${istHeute ? "bg-[#D4A853]/10" : istWochenende ? "bg-gray-50" : ""} rounded-t-xl`}>
+              <p className="text-xs text-gray-500 font-medium">{wochentage[i]}</p>
+              <p className={`text-lg font-bold ${istHeute ? "text-[#D4A853]" : "text-[#0F172A]"}`}>{d.getDate()}</p>
+            </div>
+            <div className="p-1.5 space-y-1 min-h-[100px]">
+              {termineFuerTag(d).map(t => {
+                const farbe = KURS_FARBEN[t.kurs.kategorie] || "bg-gray-100 border-gray-300 text-gray-700"
+                return (
+                  <div key={t.id} className={`text-xs p-1.5 rounded-lg border ${farbe} leading-tight`}>
+                    <p className="font-semibold">{t.uhrzeit}</p>
+                    <p className="truncate">{t.kurs.name}</p>
+                    <p className="opacity-70 truncate">{t.trainer.name}</p>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+export function TerminVerwaltung({ termine: initial, kurse, raeume, trainer, kalenderAnsicht }: { termine: Termin[]; kurse: Kurs[]; raeume: Raum[]; trainer: Trainer[]; kalenderAnsicht?: boolean }) {
   const [termine, setTermine] = useState(initial)
   const [showNew, setShowNew] = useState(false)
   const [edit, setEdit] = useState<Termin | null>(null)
@@ -44,6 +110,10 @@ export function TerminVerwaltung({ termine: initial, kurse, raeume, trainer }: {
 
   return (
     <div>
+      {kalenderAnsicht ? (
+        <KalenderAnsicht termine={termine} />
+      ) : null}
+
       <button onClick={() => setShowNew(true)}
         className="bg-[#76B900] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#4A7500] mb-4">+ Termin anlegen</button>
 

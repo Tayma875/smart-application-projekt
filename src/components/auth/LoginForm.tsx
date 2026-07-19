@@ -37,9 +37,9 @@ export function LoginForm() {
       const rolle = session?.user?.rolle || "Admin"
       const routes: Record<string, string> = {
         Admin: "/",
-        Rezeption: "/rezeption/mitglieder",
-        Trainer: "/trainer/kurse",
-        Mitglied: "/mitglied/kurse",
+        Rezeption: "/",
+        Trainer: "/",
+        Mitglied: "/",
       }
       router.push(routes[rolle] || "/")
     } catch {

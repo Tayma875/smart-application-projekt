@@ -63,14 +63,57 @@ export default async function Home() {
   let kpiKurseDieseWoche = 0
   let kpiAuslastungProzent = 0
   let kpiMonatsUmsatz = 0
-  let warnungen: { titel: string; inhalt: string | null }[] = []
+  let vertragAuslaufend: { id: string; name: string; tarif: string; vertragEnde: string; diffTage: number }[] = []
+let vertragAbgelaufen: { id: string; name: string; tarif: string; vertragEnde: string }[] = []
+let warnungen: { titel: string; inhalt: string | null }[] = []
 
   if (rolle === "Admin") {
     zahlungAusstehendCount = await prisma.mitglied.count({ where: { status: "zahlung_ausstehend" } })
     noShowWarnungen = await prisma.mitglied.count({ where: { noShowZaehler: { gte: 2 } } })
     gesperrtCount = await prisma.mitglied.count({ where: { gesperrtBis: { gte: new Date() } } })
     trainerAusfallCount = await prisma.kurstermin.count({ where: { status: "vertretung", datum: { gte: new Date() } } })
-    warnungen = await prisma.benachrichtigung.findMany({ where: { gelesen: false, empfaengerRolle: "Admin" }, orderBy: { createdAt: "desc" }, take: 5 })
+    // Vertrags-Monitoring Daten direkt via Prisma
+  const jetztVertrag = new Date()
+  const in30Tagen = new Date(jetztVertrag.getTime() + 30 * 24 * 60 * 60 * 1000)
+  const mitgliederMitTarif = await prisma.mitglied.findMany({
+    where: { status: { in: ["aktiv", "pausiert", "gekuendigt"] } },
+    include: { tarif: true },
+  })
+  for (const m of mitgliederMitTarif) {
+    const vertragEnde = new Date(m.startdatum)
+    if (m.tarif.laufzeit === "jahresvertrag") {
+      vertragEnde.setFullYear(vertragEnde.getFullYear() + 1)
+      while (vertragEnde <= jetztVertrag) {
+        vertragEnde.setFullYear(vertragEnde.getFullYear() + 1)
+      }
+    }
+    const diffTage = (vertragEnde.getTime() - jetztVertrag.getTime()) / (1000 * 60 * 60 * 24)
+    if (m.status === "gekuendigt" && diffTage <= 0) {
+      vertragAbgelaufen.push({
+        id: m.id,
+        name: `${m.vorname} ${m.nachname}`,
+        tarif: m.tarif.name,
+        vertragEnde: vertragEnde.toISOString().split("T")[0],
+      })
+    } else if (m.status === "gekuendigt") {
+      vertragAuslaufend.push({
+        id: m.id,
+        name: `${m.vorname} ${m.nachname}`,
+        tarif: m.tarif.name,
+        vertragEnde: vertragEnde.toISOString().split("T")[0],
+        diffTage: Math.round(diffTage),
+      })
+    } else if (diffTage <= 30 && diffTage > 0) {
+      vertragAuslaufend.push({
+        id: m.id,
+        name: `${m.vorname} ${m.nachname}`,
+        tarif: m.tarif.name,
+        vertragEnde: vertragEnde.toISOString().split("T")[0],
+        diffTage: Math.round(diffTage),
+      })
+    }
+  }
+  warnungen = await prisma.benachrichtigung.findMany({ where: { gelesen: false, empfaengerRolle: "Admin" }, orderBy: { createdAt: "desc" }, take: 5 })
 
     kpiAktiveMitglieder = await prisma.mitglied.count({ where: { status: "aktiv" } })
     const wochenStart = new Date(); wochenStart.setHours(0, 0, 0, 0)
@@ -82,8 +125,8 @@ export default async function Home() {
     })
     const auslastungen = alleTermine.map(t => { const kap = Math.min(t.kurs.maxTeilnehmer, t.raum.kapazitaet); return kap > 0 ? t._count.buchungen / kap : 0 })
     kpiAuslastungProzent = auslastungen.length > 0 ? Math.round((auslastungen.reduce((a, b) => a + b, 0) / auslastungen.length) * 100) : 0
-    const mitgliederMitTarif = await prisma.mitglied.findMany({ where: { status: "aktiv" }, include: { tarif: { select: { monatspreis: true } } } })
-    kpiMonatsUmsatz = mitgliederMitTarif.reduce((sum, m) => sum + (m.tarif?.monatspreis || 0), 0)
+    const mitgliederFuerUmsatz = await prisma.mitglied.findMany({ where: { status: "aktiv" }, include: { tarif: { select: { monatspreis: true } } } })
+    kpiMonatsUmsatz = mitgliederFuerUmsatz.reduce((sum, m) => sum + (m.tarif?.monatspreis || 0), 0)
   }
 
 
@@ -113,7 +156,7 @@ export default async function Home() {
               <div className="mb-4 bg-orange-50 border border-orange-200 rounded-xl px-5 py-3 flex items-center gap-3">
                 <span className="text-xl">⚠️</span>
                 <p className="text-sm text-orange-800 flex-1"><strong>{zahlungAusstehendCount} Mitglieder</strong> mit Zahlung ausstehend</p>
-                <Link href="/admin/mitglieder" className="text-sm text-orange-700 hover:underline font-medium">Anzeigen →</Link>
+                <Link href="/admin/mitglieder?zahlung=ausstehend" className="text-sm text-orange-700 hover:underline font-medium">Anzeigen →</Link>
               </div>
             )}
             {noShowWarnungen > 0 && (
@@ -137,11 +180,29 @@ export default async function Home() {
                 <Link href="/admin/mitglieder" className="text-sm text-red-700 hover:underline font-medium">Anzeigen →</Link>
               </div>
             )}
+            {vertragAbgelaufen.length > 0 && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-5 py-3 flex items-center gap-3">
+                <span className="text-xl">📄</span>
+                <p className="text-sm text-red-800 flex-1"><strong>{vertragAbgelaufen.length} Verträge</strong> abgelaufen</p>
+                <Link href="/admin/mitglieder?vertrag=abgelaufen" className="text-sm text-red-700 hover:underline font-medium">Anzeigen →</Link>
+              </div>
+            )}
+            {vertragAuslaufend.length > 0 && (
+              <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 flex items-center gap-3">
+                <span className="text-xl">📅</span>
+                <p className="text-sm text-amber-800 flex-1"><strong>{vertragAuslaufend.length} Verträge</strong> laufen in 30 Tagen aus</p>
+                <Link href="/admin/mitglieder?vertrag=auslaufend" className="text-sm text-amber-700 hover:underline font-medium">Anzeigen →</Link>
+              </div>
+            )}
 
             {/* KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <StatCard label="Aktive Mitglieder" value={kpiAktiveMitglieder} />
-              <StatCard label="Kurse diese Woche" value={kpiKurseDieseWoche} sub="Termine im Plan" />
+              <Link href="/admin/kurstermine?ansicht=kalender" className="block bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#D4A853]/30 transition-all duration-300">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Kurse diese Woche</p>
+                <p className="text-2xl font-bold text-[#0F172A] mt-1">{kpiKurseDieseWoche}</p>
+                <p className="text-xs text-gray-400 mt-0.5">Termine im Plan</p>
+              </Link>
               <StatCard label="Auslastung" value={`${kpiAuslastungProzent}%`} />
               <StatCard label="Monatsumsatz" value={`${kpiMonatsUmsatz.toLocaleString("de-DE")} €`} sub="aus aktiven Tarifen" />
             </div>
@@ -157,11 +218,7 @@ export default async function Home() {
               <DashboardCard title="Online-Content" href="/admin/online-content" icon="📺" desc="Videos und Streams" />
               <DashboardCard title="Advanced-Freigabe" href="/admin/advanced-freigabe" icon="⭐" desc="Freigaben" />
               <DashboardCard title="Abrechnung" href="/admin/abrechnung" icon="💰" desc="Honorar abrechnen" />
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="font-semibold text-gray-800">Vertrags-Monitoring</h3>
-                <p className="text-xs text-gray-500 mt-1 mb-3">Auslaufende Mitgliedschaften  prüfen</p>
-                <VertragsMonitoringButton />
-              </div>
+
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="font-semibold text-gray-800">Wartelisten</h3>
                 <p className="text-xs text-gray-500 mt-1 mb-3">Abgelaufene Bestätigungen bereinigen</p>

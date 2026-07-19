@@ -37,6 +37,16 @@ function isSameDay(d1: Date, d2: Date): boolean {
     d1.getDate() === d2.getDate()
 }
 
+const KURS_FARBEN: Record<string, string> = {
+  "Yoga": "bg-emerald-100 border-emerald-300 text-emerald-800",
+  "HIIT": "bg-red-100 border-red-300 text-red-800",
+  "Spinning": "bg-blue-100 border-blue-300 text-blue-800",
+  "Kraft": "bg-purple-100 border-purple-300 text-purple-800",
+  "Pilates": "bg-pink-100 border-pink-300 text-pink-800",
+  "Zumba": "bg-orange-100 border-orange-300 text-orange-800",
+  "Functional Training": "bg-cyan-100 border-cyan-300 text-cyan-800",
+}
+
 const STATUS_BADGE: Record<string, string> = {
   angemeldet: "bg-blue-100 text-blue-700",
   teilgenommen: "bg-green-100 text-green-700",
@@ -139,7 +149,7 @@ export function MitgliedKalender({ buchungen }: { buchungen: Buchung[] }) {
                     }`}>
                       {terminInDieserStunde && (
                         <div className={`block text-xs p-2 rounded-lg border hover:shadow-md transition-shadow ${
-                          STATUS_BADGE[terminInDieserStunde.teilnahmeStatus] || "bg-blue-50 border-blue-200"
+                          KURS_FARBEN[terminInDieserStunde.termin.kurs.kategorie] || "bg-blue-50 border-blue-200"
                         }`}>
                           <div className="font-semibold">{terminInDieserStunde.termin.kurs.name}</div>
                           <div className="mt-0.5">{terminInDieserStunde.termin.uhrzeit} · {terminInDieserStunde.termin.kurs.dauer} Min</div>
@@ -171,7 +181,7 @@ export function MitgliedKalender({ buchungen }: { buchungen: Buchung[] }) {
                 {buchungenAnDemTag.map(b => (
                   <div key={b.id}
                     className={`block p-3 rounded-xl border ${
-                      STATUS_BADGE[b.teilnahmeStatus] || "bg-white border-gray-200"
+                      KURS_FARBEN[b.termin.kurs.kategorie] || "bg-white border-gray-200"
                     } hover:shadow-md transition-shadow`}
                   >
                     <div className="flex items-center justify-between">

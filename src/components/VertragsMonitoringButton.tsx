@@ -1,38 +1,91 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import Link from "next/link"
+
+interface VertragsInfo {
+  id: string
+  name: string
+  email: string
+  tarif: string
+  vertragEnde: string
+  diffTage?: number
+  status?: string
+}
 
 export function VertragsMonitoringButton() {
   const [loading, setLoading] = useState(false)
-  const [ergebnis, setErgebnis] = useState<string | null>(null)
+  const [auslaufend, setAuslaufend] = useState<VertragsInfo[]>([])
+  const [abgelaufen, setAbgelaufen] = useState<VertragsInfo[]>([])
 
-  async function checken() {
+  useEffect(() => {
+    laden()
+  }, [])
+
+  async function laden() {
     setLoading(true)
-    setErgebnis(null)
     try {
-      const res = await fetch("/api/vertrags-monitoring", { method: "POST" })
+      const res = await fetch("/api/vertrags-monitoring")
       const data = await res.json()
-      if (data.success) {
-        setErgebnis(`✅ ${data.benachrichtigungenErstellt} neue Benachrichtigungen`)
-      } else {
-        setErgebnis("❌ Fehler")
-      }
+      setAuslaufend(data.auslaufend || [])
+      setAbgelaufen(data.abgelaufen || [])
     } catch {
-      setErgebnis("❌ Fehler")
+      // Fehler ignorieren
     }
     setLoading(false)
   }
 
   return (
     <div>
-      <button
-        onClick={checken}
-        disabled={loading}
-        className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-      >
-        {loading ? "Prüfe..." : "Verträge prüfen"}
-      </button>
-      {ergebnis && <p className="text-xs mt-1 text-gray-500">{ergebnis}</p>}
+      {auslaufend.length > 0 && (
+        <div className="mt-3">
+          <p className="text-xs font-semibold text-amber-700 mb-2">
+            ⚠️ Auslaufende Verträge (innerhalb 30 Tagen)
+          </p>
+          <ul className="space-y-2">
+            {auslaufend.map((m) => (
+              <li key={m.id} className="text-xs bg-amber-50 border border-amber-200 rounded-lg p-2.5">
+                <Link
+                  href={`/admin/mitglieder?fokus=${m.id}`}
+                  className="font-medium text-amber-900 hover:text-amber-700"
+                >
+                  {m.name}
+                </Link>
+                <span className="text-amber-700">
+                  {" "}– {m.tarif} – endet in {m.diffTage} Tagen ({m.vertragEnde})
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {abgelaufen.length > 0 && (
+        <div className="mt-3">
+          <p className="text-xs font-semibold text-red-700 mb-2">
+            🔴 Abgelaufene Verträge
+          </p>
+          <ul className="space-y-2">
+            {abgelaufen.map((m) => (
+              <li key={m.id} className="text-xs bg-red-50 border border-red-200 rounded-lg p-2.5">
+                <Link
+                  href={`/admin/mitglieder?fokus=${m.id}`}
+                  className="font-medium text-red-900 hover:text-red-700"
+                >
+                  {m.name}
+                </Link>
+                <span className="text-red-700">
+                  {" "}– {m.tarif} – abgelaufen seit {m.vertragEnde}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {auslaufend.length === 0 && abgelaufen.length === 0 && !loading && (
+        <p className="text-xs text-green-600 mt-2">✅ Alle Verträge sind aktuell.</p>
+      )}
     </div>
   )
 }
