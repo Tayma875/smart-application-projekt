@@ -15,7 +15,7 @@ const ROUTE_RULES: [string, string | null][] = [
   ["/trainer", "Trainer"],
   ["/mitglied", "Mitglied"],
   ["/api/admin", "Admin"],
-  ["/api/abrechnung", "Admin"],
+  ["/api/abrechnung", "Trainer"],
   ["/api/advanced-freigabe", "Admin"],
   ["/api/erinnerungen", "Admin"],
   ["/api/geburtstage", "Admin"],

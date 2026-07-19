@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
-import { sendWartelisteBenachrichtigung } from "@/lib/mail"
+import { sendWartelisteBenachrichtigung, sendMail } from "@/lib/mail"
 import { NextResponse } from "next/server"
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
@@ -53,6 +53,24 @@ if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { st
               mitgliedId: mitglied.id,
             },
           })
+          // E-Mail an Admin
+          try {
+            const admin = await prisma.account.findFirst({ where: { rolle: "Admin" }, select: { email: true } })
+            if (admin?.email) {
+              await sendMail(
+                admin.email,
+                `⚠️ No-Show-Warnung: ${mitglied.vorname} ${mitglied.nachname}`,
+                `<h2>No-Show-Warnung</h2>
+                 <p>${mitglied.vorname} ${mitglied.nachname} hat <strong>zweimal hintereinander</strong> unentschuldigt gefehlt.</p>
+                 <p>Bei einem dritten No-Show erfolgt ${
+                   istPremium
+                     ? "keine automatische Sperre (Premium). Bitte individuell entscheiden."
+                     : "eine automatische 14-Tage-Sperre für Live-Buchungen."
+                 }</p>
+                 <p>Smart Fit – Exzellenz in Bewegung</p>`
+              )
+            }
+          } catch {} // Mail-Fehler ignorieren
         }
 
         // SMA-017: Entscheidung 2026-07-17 – Premium-Ausnahme
@@ -74,6 +92,20 @@ if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { st
               where: { id: buchung.mitgliedId },
               data: { noShowZaehler: 0 },
             })
+            // E-Mail an Admin
+            try {
+              const admin = await prisma.account.findFirst({ where: { rolle: "Admin" }, select: { email: true } })
+              if (admin?.email) {
+                await sendMail(
+                  admin.email,
+                  `⚠️ No-Show (Premium): ${mitglied.vorname} ${mitglied.nachname}`,
+                  `<h2>No-Show – Premium-Mitglied</h2>
+                   <p>${mitglied.vorname} ${mitglied.nachname} (Premium) hat <strong>dreimal hintereinander</strong> unentschuldigt gefehlt.</p>
+                   <p>Keine automatische Sperre – bitte individuell entscheiden, ob eine Sperre verhängt werden soll.</p>
+                   <p>Smart Fit – Exzellenz in Bewegung</p>`
+                )
+              }
+            } catch {}
           } else {
             // Basic/Plus: automatische 14-Tage-Sperre
             const gesperrtBis = new Date()
@@ -91,6 +123,20 @@ if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { st
                 mitgliedId: mitglied.id,
               },
             })
+            // E-Mail an Admin
+            try {
+              const admin = await prisma.account.findFirst({ where: { rolle: "Admin" }, select: { email: true } })
+              if (admin?.email) {
+                await sendMail(
+                  admin.email,
+                  `🔒 No-Show-Sperre: ${mitglied.vorname} ${mitglied.nachname}`,
+                  `<h2>No-Show-Sperre</h2>
+                   <p>${mitglied.vorname} ${mitglied.nachname} wurde aufgrund von <strong>drei No-Shows</strong> für 2 Wochen für Live-Buchungen gesperrt.</p>
+                   <p>Du kannst die Sperre manuell aufheben, falls ein triftiger Grund vorliegt.</p>
+                   <p>Smart Fit – Exzellenz in Bewegung</p>`
+                )
+              }
+            } catch {}
           }
         }
       } else if (newStatus === "teilgenommen") {

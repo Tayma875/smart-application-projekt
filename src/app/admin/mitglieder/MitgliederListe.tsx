@@ -79,21 +79,15 @@ export function MitgliederListe({ mitglieder, tarife, vertragFilter, vertragAbge
     const startD = new Date(startdatum)
     const startStr = isNaN(startD.getTime()) ? "—" : startD.toLocaleDateString("de-DE")
     let endStr = "—"
-    if (laufzeit === "jahresvertrag") {
+    if (status === "gekuendigt") {
+      endStr = "Gekündigt"
+    } else if (laufzeit === "jahresvertrag") {
       const vertragEnde = new Date(startdatum)
       vertragEnde.setFullYear(vertragEnde.getFullYear() + 1)
       while (vertragEnde <= new Date()) vertragEnde.setFullYear(vertragEnde.getFullYear() + 1)
       endStr = isNaN(vertragEnde.getTime()) ? "—" : vertragEnde.toLocaleDateString("de-DE")
     } else {
-      // monatlich_kuendbar: bei Kündigung 1 Monat ab Start, sonst laufend
-      if (status === "gekuendigt") {
-        const vertragEnde = new Date(startdatum)
-        vertragEnde.setMonth(vertragEnde.getMonth() + 1)
-        while (vertragEnde <= new Date()) vertragEnde.setMonth(vertragEnde.getMonth() + 1)
-        endStr = isNaN(vertragEnde.getTime()) ? "—" : vertragEnde.toLocaleDateString("de-DE")
-      } else {
-        endStr = "Laufend"
-      }
+      endStr = "Laufend"
     }
     return { startStr, endStr }
   }

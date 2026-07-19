@@ -261,6 +261,7 @@ let warnungen: { id: string; titel: string; inhalt: string | null }[] = []
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DashboardCard title="Meine Kurse" href="/trainer/kurse" icon="🏋️" desc="Kalender und Kursplan" />
             <DashboardCard title="Teilnehmer" href="/trainer/teilnehmer" icon="👥" desc="Anwesenheit erfassen" />
+            <DashboardCard title="Abrechnung" href="/trainer/abrechnung" icon="💰" desc="Honorarübersicht (Honorartrainer)" />
           </div>
         )}
 
