@@ -3,6 +3,14 @@ import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 import { sendKursErinnerung } from "@/lib/mail"
 
+export async function PATCH(req: Request) {
+  const { searchParams } = new URL(req.url)
+  const id = searchParams.get("gelesen")
+  if (!id) return NextResponse.json({ error: "Keine ID" }, { status: 400 })
+  await prisma.benachrichtigung.update({ where: { id }, data: { gelesen: true } })
+  return NextResponse.json({ success: true })
+}
+
 export async function POST() {
   const jetzt = new Date()
   const in24h = new Date(jetzt.getTime() + 24 * 60 * 60 * 1000)

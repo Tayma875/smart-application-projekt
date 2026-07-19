@@ -4,6 +4,8 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { VertragsMonitoringButton } from "@/components/VertragsMonitoringButton"
 import { WartelisteCleanupButton } from "@/components/WartelisteCleanupButton"
+import { BenachrichtigungenListe } from "@/components/BenachrichtigungenListe"
+import { GeburtstagsErinnerung } from "@/components/GeburtstagsErinnerung"
 
 function DashboardCard({ title, href, icon, desc }: { title: string; href: string; icon: string; desc: string }) {
   return (
@@ -65,7 +67,7 @@ export default async function Home() {
   let kpiMonatsUmsatz = 0
   let vertragAuslaufend: { id: string; name: string; tarif: string; vertragEnde: string; diffTage: number }[] = []
 let vertragAbgelaufen: { id: string; name: string; tarif: string; vertragEnde: string }[] = []
-let warnungen: { titel: string; inhalt: string | null }[] = []
+let warnungen: { id: string; titel: string; inhalt: string | null }[] = []
 
   if (rolle === "Admin") {
     zahlungAusstehendCount = await prisma.mitglied.count({ where: { status: "zahlung_ausstehend" } })
@@ -151,78 +153,96 @@ let warnungen: { titel: string; inhalt: string | null }[] = []
         {/* ── ADMIN ── */}
         {rolle === "Admin" && (
           <>
-            {/* Warnungen */}
-            {zahlungAusstehendCount > 0 && (
-              <div className="mb-4 bg-orange-50 border border-orange-200 rounded-xl px-5 py-3 flex items-center gap-3">
-                <span className="text-xl">⚠️</span>
-                <p className="text-sm text-orange-800 flex-1"><strong>{zahlungAusstehendCount} Mitglieder</strong> mit Zahlung ausstehend</p>
-                <Link href="/admin/mitglieder?zahlung=ausstehend" className="text-sm text-orange-700 hover:underline font-medium">Anzeigen →</Link>
-              </div>
-            )}
-            {noShowWarnungen > 0 && (
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-5 py-3 flex items-center gap-3">
-                <span className="text-xl">❗</span>
-                <p className="text-sm text-red-800 flex-1"><strong>{noShowWarnungen} Mitglieder</strong> mit 2+ No-Shows</p>
-                <Link href="/admin/mitglieder" className="text-sm text-red-700 hover:underline font-medium">Anzeigen →</Link>
-              </div>
-            )}
-            {trainerAusfallCount > 0 && (
-              <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-xl px-5 py-3 flex items-center gap-3">
-                <span className="text-xl">👤</span>
-                <p className="text-sm text-yellow-800 flex-1"><strong>{trainerAusfallCount} Termine</strong> mit Trainerausfall</p>
-                <Link href="/admin/kurstermine" className="text-sm text-yellow-700 hover:underline font-medium">Anzeigen →</Link>
-              </div>
-            )}
-            {gesperrtCount > 0 && (
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-5 py-3 flex items-center gap-3">
-                <span className="text-xl">🔒</span>
-                <p className="text-sm text-red-800 flex-1"><strong>{gesperrtCount} Mitglieder</strong> sind gesperrt</p>
-                <Link href="/admin/mitglieder" className="text-sm text-red-700 hover:underline font-medium">Anzeigen →</Link>
-              </div>
-            )}
-            {vertragAbgelaufen.length > 0 && (
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-5 py-3 flex items-center gap-3">
-                <span className="text-xl">📄</span>
-                <p className="text-sm text-red-800 flex-1"><strong>{vertragAbgelaufen.length} Verträge</strong> abgelaufen</p>
-                <Link href="/admin/mitglieder?vertrag=abgelaufen" className="text-sm text-red-700 hover:underline font-medium">Anzeigen →</Link>
-              </div>
-            )}
-            {vertragAuslaufend.length > 0 && (
-              <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 flex items-center gap-3">
-                <span className="text-xl">📅</span>
-                <p className="text-sm text-amber-800 flex-1"><strong>{vertragAuslaufend.length} Verträge</strong> laufen in 30 Tagen aus</p>
-                <Link href="/admin/mitglieder?vertrag=auslaufend" className="text-sm text-amber-700 hover:underline font-medium">Anzeigen →</Link>
+            {/* Geburtstage - Hervorgehoben */}
+            <div className="mb-6 bg-gradient-to-r from-[#D4A853]/10 to-[#D4A853]/5 border-2 border-[#D4A853]/30 rounded-2xl px-6 py-5 shadow-md">
+              <GeburtstagsErinnerung />
+            </div>
+            {/* ⚠️ Warnungen – nur anzeigen wenn vorhanden */}
+            {(zahlungAusstehendCount > 0 || noShowWarnungen > 0 || trainerAusfallCount > 0 || gesperrtCount > 0 || vertragAbgelaufen.length > 0 || vertragAuslaufend.length > 0) && (
+              <div className="mb-6">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">⚠️ Warnungen</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {zahlungAusstehendCount > 0 && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                      <span className="text-lg">⚠️</span>
+                      <p className="text-xs text-orange-800 flex-1"><strong>{zahlungAusstehendCount}</strong> Zahlungen ausstehend</p>
+                      <Link href="/admin/mitglieder?zahlung=ausstehend" className="text-xs text-orange-700 hover:underline font-medium shrink-0">Anzeigen →</Link>
+                    </div>
+                  )}
+                  {noShowWarnungen > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                      <span className="text-lg">❗</span>
+                      <p className="text-xs text-red-800 flex-1"><strong>{noShowWarnungen}</strong> mit 2+ No-Shows</p>
+                      <Link href="/admin/mitglieder" className="text-xs text-red-700 hover:underline font-medium shrink-0">Anzeigen →</Link>
+                    </div>
+                  )}
+                  {trainerAusfallCount > 0 && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                      <span className="text-lg">👤</span>
+                      <p className="text-xs text-yellow-800 flex-1"><strong>{trainerAusfallCount}</strong> Trainerausfälle</p>
+                      <Link href="/admin/kurstermine" className="text-xs text-yellow-700 hover:underline font-medium shrink-0">Anzeigen →</Link>
+                    </div>
+                  )}
+                  {gesperrtCount > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                      <span className="text-lg">🔒</span>
+                      <p className="text-xs text-red-800 flex-1"><strong>{gesperrtCount}</strong> gesperrte Mitglieder</p>
+                      <Link href="/admin/mitglieder" className="text-xs text-red-700 hover:underline font-medium shrink-0">Anzeigen →</Link>
+                    </div>
+                  )}
+                  {vertragAbgelaufen.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                      <span className="text-lg">📄</span>
+                      <p className="text-xs text-red-800 flex-1"><strong>{vertragAbgelaufen.length}</strong> Verträge abgelaufen</p>
+                      <Link href="/admin/mitglieder?vertrag=abgelaufen" className="text-xs text-red-700 hover:underline font-medium shrink-0">Anzeigen →</Link>
+                    </div>
+                  )}
+                  {vertragAuslaufend.length > 0 && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                      <span className="text-lg">📅</span>
+                      <p className="text-xs text-amber-800 flex-1"><strong>{vertragAuslaufend.length}</strong> Verträge laufen aus</p>
+                      <Link href="/admin/mitglieder?vertrag=auslaufend" className="text-xs text-amber-700 hover:underline font-medium shrink-0">Anzeigen →</Link>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
-            {/* KPIs */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <StatCard label="Aktive Mitglieder" value={kpiAktiveMitglieder} />
-              <Link href="/admin/kurstermine?ansicht=kalender" className="block bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#D4A853]/30 transition-all duration-300">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Kurse diese Woche</p>
-                <p className="text-2xl font-bold text-[#0F172A] mt-1">{kpiKurseDieseWoche}</p>
-                <p className="text-xs text-gray-400 mt-0.5">Termine im Plan</p>
-              </Link>
-              <StatCard label="Auslastung" value={`${kpiAuslastungProzent}%`} />
-              <StatCard label="Monatsumsatz" value={`${kpiMonatsUmsatz.toLocaleString("de-DE")} €`} sub="aus aktiven Tarifen" />
+            {/* 📊 Kennzahlen */}
+            <div className="mb-6">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">📊 Kennzahlen</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatCard label="Aktive Mitglieder" value={kpiAktiveMitglieder} />
+                <Link href="/admin/kurstermine?ansicht=kalender" className="block bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#D4A853]/30 transition-all duration-300">
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Kurse diese Woche</p>
+                  <p className="text-2xl font-bold text-[#0F172A] mt-1">{kpiKurseDieseWoche}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Termine im Plan</p>
+                </Link>
+                <StatCard label="Auslastung" value={`${kpiAuslastungProzent}%`} />
+                <StatCard label="Monatsumsatz" value={`${kpiMonatsUmsatz.toLocaleString("de-DE")} €`} sub="aus aktiven Tarifen" />
+              </div>
             </div>
 
-            {/* Dashboard-Kacheln */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <DashboardCard title="Mitglieder" href="/admin/mitglieder" icon="👥" desc="Mitglieder verwalten und einsehen" />
-              <DashboardCard title="Tarife" href="/admin/tarife" icon="💶" desc="Tarife verwalten und anpassen" />
-              <DashboardCard title="Kurse" href="/admin/kurse" icon="🏋️" desc="Kursarten verwalten" />
-              <DashboardCard title="Kurstermine" href="/admin/kurstermine" icon="📅" desc="Termine planen" />
-              <DashboardCard title="Trainer" href="/admin/trainer" icon="🧑‍🏫" desc="Trainer verwalten" />
-              <DashboardCard title="Räume" href="/admin/raeume" icon="🚪" desc="Räume verwalten" />
-              <DashboardCard title="Online-Content" href="/admin/online-content" icon="📺" desc="Videos und Streams" />
-              <DashboardCard title="Advanced-Freigabe" href="/admin/advanced-freigabe" icon="⭐" desc="Freigaben" />
-              <DashboardCard title="Abrechnung" href="/admin/abrechnung" icon="💰" desc="Honorar abrechnen" />
+            {/* ℹ️ Aktuelle Kurs-Updates */}
+            <div className="mb-6">
+              <BenachrichtigungenListe warnungen={warnungen} />
+            </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="font-semibold text-gray-800">Wartelisten</h3>
-                <p className="text-xs text-gray-500 mt-1 mb-3">Abgelaufene Bestätigungen bereinigen</p>
-                <WartelisteCleanupButton />
+            {/* 🚀 Verwaltung */}
+            <div className="mb-6">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">🚀 Verwaltung</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <DashboardCard title="Mitglieder" href="/admin/mitglieder" icon="👥" desc="Mitglieder verwalten und einsehen" />
+                <DashboardCard title="Tarife" href="/admin/tarife" icon="💶" desc="Tarife verwalten und anpassen" />
+                <DashboardCard title="Kurse" href="/admin/kurse" icon="🏋️" desc="Kursarten verwalten" />
+                <DashboardCard title="Kurstermine" href="/admin/kurstermine" icon="📅" desc="Termine planen" />
+                <DashboardCard title="Trainer" href="/admin/trainer" icon="🧑‍🏫" desc="Trainer verwalten" />
+                <DashboardCard title="Räume" href="/admin/raeume" icon="🚪" desc="Räume verwalten" />
+                <DashboardCard title="Online-Content" href="/admin/online-content" icon="📺" desc="Videos und Streams" />
+                <DashboardCard title="Advanced-Freigabe" href="/admin/advanced-freigabe" icon="⭐" desc="Freigaben" />
+                <DashboardCard title="Abrechnung" href="/admin/abrechnung" icon="💰" desc="Honorar abrechnen" />
+
+                <DashboardCard title="Wartelisten" href="/admin/warteliste" icon="📋" desc="Warteschlangen je Kurs einsehen" />
               </div>
             </div>
           </>
