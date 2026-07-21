@@ -102,7 +102,10 @@ if (!session?.user) return NextResponse.json({ error: "Nicht eingeloggt" }, { st
 
   const termin = await prisma.kurstermin.update({
     where: { id: params.id }, data: updateData,
-    include: { kurs: true, raum: true, trainer: true },
+    include: {
+      kurs: true, raum: true, trainer: true,
+      _count: { select: { buchungen: true } },
+    },
   })
   return NextResponse.json(termin)
 }
