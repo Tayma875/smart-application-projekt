@@ -2,12 +2,7 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-
-interface Kurs { id: string; name: string; dauer: number }
-interface Raum { name: string }
-interface Trainer { name: string }
-interface Termin { id: string; kurs: Kurs; raum: Raum; trainer: Trainer; datum: string; uhrzeit: string; status: string }
-interface Buchung { id: string; termin: Termin; teilnahmeStatus: string; buchungszeitpunkt: string; stornozeitpunkt: string | null }
+import type { ApiKurs as Kurs, ApiRaum as Raum, ApiTrainer as Trainer, ApiTermin as Termin, ApiBuchung as Buchung } from "@/types"
 
 function getWeekDates(reference: Date): Date[] {
   const start = new Date(reference)
